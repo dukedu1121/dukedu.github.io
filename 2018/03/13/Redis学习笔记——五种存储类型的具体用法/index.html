@@ -79,13 +79,17 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Duke Du的博客">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta name="description" content="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象1$redis-&amp;gt;set(&amp;apos;key&amp;apos;,&amp;apos;TK&amp;apos;); 1$redis-&amp;gt;set(&amp;apos;number&amp;apos;,&amp;apos;1&amp;apos;); 1$redis-&amp;gt;setex(&amp;apo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis学习笔记——五种存储类型的具体用法">
+<meta property="og:url" content="http://yoursite.com/2018/03/13/Redis学习笔记——五种存储类型的具体用法/index.html">
 <meta property="og:site_name" content="Duke Du的博客">
+<meta property="og:description" content="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象1$redis-&amp;gt;set(&amp;apos;key&amp;apos;,&amp;apos;TK&amp;apos;); 1$redis-&amp;gt;set(&amp;apos;number&amp;apos;,&amp;apos;1&amp;apos;); 1$redis-&amp;gt;setex(&amp;apo">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-13T13:24:05.627Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Duke Du的博客">
+<meta name="twitter:title" content="Redis学习笔记——五种存储类型的具体用法">
+<meta name="twitter:description" content="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象1$redis-&amp;gt;set(&amp;apos;key&amp;apos;,&amp;apos;TK&amp;apos;); 1$redis-&amp;gt;set(&amp;apos;number&amp;apos;,&amp;apos;1&amp;apos;); 1$redis-&amp;gt;setex(&amp;apo">
 
 
 
@@ -115,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/03/13/Redis学习笔记——五种存储类型的具体用法/"/>
 
 
 
 
 
-  <title>Duke Du的博客</title>
+  <title>Redis学习笔记——五种存储类型的具体用法 | Duke Du的博客</title>
   
 
 
@@ -140,8 +144,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -214,9 +217,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -246,9 +249,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/13/Redis学习笔记——五种存储类型的具体用法/" itemprop="url">Redis学习笔记——五种存储类型的具体用法</a></h1>
+          <h1 class="post-title" itemprop="name headline">Redis学习笔记——五种存储类型的具体用法</h1>
         
 
         <div class="post-meta">
@@ -298,9 +299,7 @@
       
 
       
-        
-          
-            <h4 id="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象"><a href="#一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象" class="headerlink" title="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象"></a>一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$redis-&gt;set(&apos;key&apos;,&apos;TK&apos;);</span><br></pre></td></tr></table></figure>
+        <h4 id="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象"><a href="#一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象" class="headerlink" title="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象"></a>一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$redis-&gt;set(&apos;key&apos;,&apos;TK&apos;);</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$redis-&gt;set(&apos;number&apos;,&apos;1&apos;);</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$redis-&gt;setex(&apos;key&apos;,5,&apos;TK&apos;); //设置有效期为5秒的键值</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$redis-&gt;psetex(&apos;key&apos;,5000,&apos;TK&apos;); //设置有效期为5000毫秒(同5秒)的键值</span><br></pre></td></tr></table></figure>
@@ -401,8 +400,6 @@
 <p>转载于<a href="http://www.cnblogs.com/liangzia/p/5731403.html" target="_blank" rel="noopener">http://www.cnblogs.com/liangzia/p/5731403.html</a></p>
 </blockquote>
 
-          
-        
       
     </div>
     
@@ -419,184 +416,28 @@
       
 
       
-
-      
-
       
       
-        <div class="post-eof"></div>
+
       
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/13/Redis学习笔记——数据过期策略/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Duke Du">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Duke Du的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/13/Redis学习笔记——数据过期策略/" itemprop="url">Redis学习笔记——数据过期策略</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-13T21:13:00+08:00">
-                2018-03-13
-              </time>
+              <a href="/2018/03/13/Redis学习笔记——数据过期策略/" rel="next" title="Redis学习笔记——数据过期策略">
+                <i class="fa fa-chevron-left"></i> Redis学习笔记——数据过期策略
+              </a>
             
+          </div>
 
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
             
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
+          </div>
         </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          
-            <h4 id="一、设置过期时间"><a href="#一、设置过期时间" class="headerlink" title="一、设置过期时间"></a>一、设置过期时间</h4><p>　　Redis对存储值的过期处理实际上是针对该值的键（key）处理的，即时间的设置也是设置key的有效时间。Expires字典保存了所有键的过期时间，Expires也被称为过期字段。</p>
-<ul>
-<li>expire key time(以秒为单位)–这是最常用的方式</li>
-<li>setex(String key, int seconds, String value)–字符串独有的方式</li>
-</ul>
-<p>注：<br>　　1、除了字符串自己独有设置过期时间的方法外，其他方法都需要依靠expire方法来设置时间<br>　　2、如果没有设置时间，那缓存就是永不过期<br>　　3、如果设置了过期时间，之后又想让缓存永不过期，使用persist key</p>
-<h4 id="二、Redis采用的过期策略"><a href="#二、Redis采用的过期策略" class="headerlink" title="二、Redis采用的过期策略"></a>二、Redis采用的过期策略</h4><p>惰性删除+定期删除</p>
-<ul>
-<li>惰性删除流程<ul>
-<li>在进行get或setnx等操作时，先检查key是否过期，</li>
-<li>若过期，删除key，然后执行相应操作；</li>
-<li>若没过期，直接执行相应操作</li>
-</ul>
-</li>
-<li>定期删除流程（简单而言，对指定个数个库的每一个库随机删除小于等于指定个数个过期key）<ul>
-<li>遍历每个数据库（就是redis.conf中配置的”database”数量，默认为16）<ul>
-<li>检查当前库中的指定个数个key（默认是每个库检查20个key，注意相当于该循环执行20次，循环体时下边的描述）<ul>
-<li>如果当前库中没有一个key设置了过期时间，直接执行下一个库的遍历</li>
-<li>随机获取一个设置了过期时间的key，检查该key是否过期，如果过期，删除key</li>
-<li>判断定期删除操作是否已经达到指定时长，若已经达到，直接退出定期删除。</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h4 id="三、RDB对过期key的处理"><a href="#三、RDB对过期key的处理" class="headerlink" title="三、RDB对过期key的处理"></a>三、RDB对过期key的处理</h4><p>过期key对RDB没有任何影响</p>
-<ul>
-<li>从内存数据库持久化数据到RDB文件<ul>
-<li>持久化key之前，会检查是否过期，过期的key不进入RDB文件</li>
-</ul>
-</li>
-<li>从RDB文件恢复数据到内存数据库<ul>
-<li>数据载入数据库之前，会对key先进行过期检查，如果过期，不导入数据库（主库情况）</li>
-</ul>
-</li>
-</ul>
-<h4 id="四、AOF对过期key的处理"><a href="#四、AOF对过期key的处理" class="headerlink" title="四、AOF对过期key的处理**"></a>四、AOF对过期key的处理**</h4><p>过期key对AOF没有任何影响</p>
-<ul>
-<li>从内存数据库持久化数据到AOF文件：<ul>
-<li>当key过期后，还没有被删除，此时进行执行持久化操作（该key是不会进入aof文件的，因为没有发生修改命令）</li>
-<li>当key过期后，在发生删除操作时，程序会向aof文件追加一条del命令（在将来的以aof文件恢复数据的时候该过期的键就会被删掉）</li>
-</ul>
-</li>
-<li>AOF重写<ul>
-<li>重写时，会先判断key是否过期，已过期的key不会重写到aof文件 </li>
-</ul>
-</li>
-</ul>
-<blockquote>
-<p>转载于：<a href="http://www.cnblogs.com/xuliangxing/p/7151812.html" target="_blank" rel="noopener">http://www.cnblogs.com/xuliangxing/p/7151812.html</a></p>
-</blockquote>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -606,133 +447,11 @@
   </article>
 
 
-    
-      
 
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/13/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Duke Du">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Duke Du的博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/03/13/hello-world/" itemprop="url">Hello</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-13T16:38:00+08:00">
-                2018-03-13
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <ul>
-<li>这个博客用于记录自己在快手入职之后的成长之旅,不定期更新。</li>
-<li>快手后端的技术栈主要包括 grpc protobuf netty zookeeper kafka mysql redis memcache等，之后的博客也会围绕这些方面进行 。</li>
-</ul>
-
-          
-        
+    <div class="post-spread">
       
     </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-    
-  </section>
-
-  
 
 
           </div>
@@ -740,6 +459,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -760,8 +483,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -803,6 +535,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象"><span class="nav-number">1.</span> <span class="nav-text">一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、list链表操作"><span class="nav-number">2.</span> <span class="nav-text">二、list链表操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、Set集合类型"><span class="nav-number">3.</span> <span class="nav-text">三、Set集合类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、Zset数据类型"><span class="nav-number">4.</span> <span class="nav-text">四、Zset数据类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#五、Hash数据类型"><span class="nav-number">5.</span> <span class="nav-text">五、Hash数据类型</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -936,6 +684,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
