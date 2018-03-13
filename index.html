@@ -557,7 +557,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="四、AOF对过期key的处理"><a href="#四、AOF对过期key的处理" class="headerlink" title="四、AOF对过期key的处理**"></a>四、AOF对过期key的处理**</h4><p>过期key对AOF没有任何影响</p>
+<h4 id="四、AOF对过期key的处理"><a href="#四、AOF对过期key的处理" class="headerlink" title="四、AOF对过期key的处理"></a>四、AOF对过期key的处理</h4><p>过期key对AOF没有任何影响</p>
 <ul>
 <li>从内存数据库持久化数据到AOF文件：<ul>
 <li>当key过期后，还没有被删除，此时进行执行持久化操作（该key是不会进入aof文件的，因为没有发生修改命令）</li>

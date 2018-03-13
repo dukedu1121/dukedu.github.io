@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="Duke Du的博客">
 <meta property="og:description" content="一、设置过期时间　　Redis对存储值的过期处理实际上是针对该值的键（key）处理的，即时间的设置也是设置key的有效时间。Expires字典保存了所有键的过期时间，Expires也被称为过期字段。  expire key time(以秒为单位)–这是最常用的方式 setex(String key, int seconds, String value)–字符串独有的方式  注：　　1、除了字符串自">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-13T13:24:06.489Z">
+<meta property="og:updated_time" content="2018-03-13T13:28:02.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis学习笔记——数据过期策略">
 <meta name="twitter:description" content="一、设置过期时间　　Redis对存储值的过期处理实际上是针对该值的键（key）处理的，即时间的设置也是设置key的有效时间。Expires字典保存了所有键的过期时间，Expires也被称为过期字段。  expire key time(以秒为单位)–这是最常用的方式 setex(String key, int seconds, String value)–字符串独有的方式  注：　　1、除了字符串自">
@@ -337,7 +337,7 @@
 </ul>
 </li>
 </ul>
-<h4 id="四、AOF对过期key的处理"><a href="#四、AOF对过期key的处理" class="headerlink" title="四、AOF对过期key的处理**"></a>四、AOF对过期key的处理**</h4><p>过期key对AOF没有任何影响</p>
+<h4 id="四、AOF对过期key的处理"><a href="#四、AOF对过期key的处理" class="headerlink" title="四、AOF对过期key的处理"></a>四、AOF对过期key的处理</h4><p>过期key对AOF没有任何影响</p>
 <ul>
 <li>从内存数据库持久化数据到AOF文件：<ul>
 <li>当key过期后，还没有被删除，此时进行执行持久化操作（该key是不会进入aof文件的，因为没有发生修改命令）</li>
@@ -502,7 +502,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、设置过期时间"><span class="nav-number">1.</span> <span class="nav-text">一、设置过期时间</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、Redis采用的过期策略"><span class="nav-number">2.</span> <span class="nav-text">二、Redis采用的过期策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、RDB对过期key的处理"><span class="nav-number">3.</span> <span class="nav-text">三、RDB对过期key的处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、AOF对过期key的处理"><span class="nav-number">4.</span> <span class="nav-text">四、AOF对过期key的处理**</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#一、设置过期时间"><span class="nav-number">1.</span> <span class="nav-text">一、设置过期时间</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#二、Redis采用的过期策略"><span class="nav-number">2.</span> <span class="nav-text">二、Redis采用的过期策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#三、RDB对过期key的处理"><span class="nav-number">3.</span> <span class="nav-text">三、RDB对过期key的处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#四、AOF对过期key的处理"><span class="nav-number">4.</span> <span class="nav-text">四、AOF对过期key的处理</span></a></li></ol></div>
             
 
           </div>
