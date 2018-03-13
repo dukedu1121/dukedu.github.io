@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="一、设置过期时间　　Redis对存储值的过期处理实际上是针对该值的键（key）处理的，即时间的设置也是设置key的有效时间。Expires字典保存了所有键的过期时间，Expires也被称为过期字段。  expire key time(以秒为单位)–这是最常用的方式 setex(String key, int seconds, String value)–字符串独有的方式  注：　　1、除了字符串自">
+<meta name="description" content="一、设置过期时间　　Redis对存储值的过期处理实际上是针对该值的键（key）处理的，即时间的设置也是设置key的有效时间。Expires字典保存了所有键的过期时间，Expires也被称为过期字段。  expire key time(以秒为单位)–这是最常用的方式 setex(String key, int seconds, String value)–字符串独有的方式  注：　　1、除了字符串">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis学习笔记——数据过期策略">
 <meta property="og:url" content="http://yoursite.com/2018/03/13/Redis学习笔记——数据过期策略/index.html">
 <meta property="og:site_name" content="Duke Du的博客">
-<meta property="og:description" content="一、设置过期时间　　Redis对存储值的过期处理实际上是针对该值的键（key）处理的，即时间的设置也是设置key的有效时间。Expires字典保存了所有键的过期时间，Expires也被称为过期字段。  expire key time(以秒为单位)–这是最常用的方式 setex(String key, int seconds, String value)–字符串独有的方式  注：　　1、除了字符串自">
+<meta property="og:description" content="一、设置过期时间　　Redis对存储值的过期处理实际上是针对该值的键（key）处理的，即时间的设置也是设置key的有效时间。Expires字典保存了所有键的过期时间，Expires也被称为过期字段。  expire key time(以秒为单位)–这是最常用的方式 setex(String key, int seconds, String value)–字符串独有的方式  注：　　1、除了字符串">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-13T13:28:02.000Z">
+<meta property="og:updated_time" content="2018-03-13T13:30:02.574Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis学习笔记——数据过期策略">
-<meta name="twitter:description" content="一、设置过期时间　　Redis对存储值的过期处理实际上是针对该值的键（key）处理的，即时间的设置也是设置key的有效时间。Expires字典保存了所有键的过期时间，Expires也被称为过期字段。  expire key time(以秒为单位)–这是最常用的方式 setex(String key, int seconds, String value)–字符串独有的方式  注：　　1、除了字符串自">
+<meta name="twitter:description" content="一、设置过期时间　　Redis对存储值的过期处理实际上是针对该值的键（key）处理的，即时间的设置也是设置key的有效时间。Expires字典保存了所有键的过期时间，Expires也被称为过期字段。  expire key time(以秒为单位)–这是最常用的方式 setex(String key, int seconds, String value)–字符串独有的方式  注：　　1、除了字符串">
 
 
 
@@ -299,7 +299,8 @@
       
 
       
-        <h4 id="一、设置过期时间"><a href="#一、设置过期时间" class="headerlink" title="一、设置过期时间"></a>一、设置过期时间</h4><p>　　Redis对存储值的过期处理实际上是针对该值的键（key）处理的，即时间的设置也是设置key的有效时间。Expires字典保存了所有键的过期时间，Expires也被称为过期字段。</p>
+        <a id="more"></a>
+<h4 id="一、设置过期时间"><a href="#一、设置过期时间" class="headerlink" title="一、设置过期时间"></a>一、设置过期时间</h4><p>　　Redis对存储值的过期处理实际上是针对该值的键（key）处理的，即时间的设置也是设置key的有效时间。Expires字典保存了所有键的过期时间，Expires也被称为过期字段。</p>
 <ul>
 <li>expire key time(以秒为单位)–这是最常用的方式</li>
 <li>setex(String key, int seconds, String value)–字符串独有的方式</li>

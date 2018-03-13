@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象1$redis-&amp;gt;set(&amp;apos;key&amp;apos;,&amp;apos;TK&amp;apos;); 1$redis-&amp;gt;set(&amp;apos;number&amp;apos;,&amp;apos;1&amp;apos;); 1$redis-&amp;gt;setex(&amp;apo">
+<meta name="description" content="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象1$redis-&amp;gt;set(&amp;apos;key&amp;apos;,&amp;apos;TK&amp;apos;); 1$redis-&amp;gt;set(&amp;apos;number&amp;apos;,&amp;apos;1&amp;apos;); 1$redis-&amp;gt;setex(&amp;ap">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis学习笔记——五种存储类型的具体用法">
 <meta property="og:url" content="http://yoursite.com/2018/03/13/Redis学习笔记——五种存储类型的具体用法/index.html">
 <meta property="og:site_name" content="Duke Du的博客">
-<meta property="og:description" content="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象1$redis-&amp;gt;set(&amp;apos;key&amp;apos;,&amp;apos;TK&amp;apos;); 1$redis-&amp;gt;set(&amp;apos;number&amp;apos;,&amp;apos;1&amp;apos;); 1$redis-&amp;gt;setex(&amp;apo">
+<meta property="og:description" content="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象1$redis-&amp;gt;set(&amp;apos;key&amp;apos;,&amp;apos;TK&amp;apos;); 1$redis-&amp;gt;set(&amp;apos;number&amp;apos;,&amp;apos;1&amp;apos;); 1$redis-&amp;gt;setex(&amp;ap">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-13T13:24:05.627Z">
+<meta property="og:updated_time" content="2018-03-13T13:30:07.495Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Redis学习笔记——五种存储类型的具体用法">
-<meta name="twitter:description" content="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象1$redis-&amp;gt;set(&amp;apos;key&amp;apos;,&amp;apos;TK&amp;apos;); 1$redis-&amp;gt;set(&amp;apos;number&amp;apos;,&amp;apos;1&amp;apos;); 1$redis-&amp;gt;setex(&amp;apo">
+<meta name="twitter:description" content="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象1$redis-&amp;gt;set(&amp;apos;key&amp;apos;,&amp;apos;TK&amp;apos;); 1$redis-&amp;gt;set(&amp;apos;number&amp;apos;,&amp;apos;1&amp;apos;); 1$redis-&amp;gt;setex(&amp;ap">
 
 
 
@@ -299,7 +299,8 @@
       
 
       
-        <h4 id="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象"><a href="#一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象" class="headerlink" title="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象"></a>一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$redis-&gt;set(&apos;key&apos;,&apos;TK&apos;);</span><br></pre></td></tr></table></figure>
+        <a id="more"></a>
+<h4 id="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象"><a href="#一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象" class="headerlink" title="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象"></a>一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$redis-&gt;set(&apos;key&apos;,&apos;TK&apos;);</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$redis-&gt;set(&apos;number&apos;,&apos;1&apos;);</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$redis-&gt;setex(&apos;key&apos;,5,&apos;TK&apos;); //设置有效期为5秒的键值</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$redis-&gt;psetex(&apos;key&apos;,5000,&apos;TK&apos;); //设置有效期为5000毫秒(同5秒)的键值</span><br></pre></td></tr></table></figure>

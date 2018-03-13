@@ -300,7 +300,8 @@
       
         
           
-            <h4 id="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象"><a href="#一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象" class="headerlink" title="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象"></a>一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$redis-&gt;set(&apos;key&apos;,&apos;TK&apos;);</span><br></pre></td></tr></table></figure>
+            <a id="more"></a>
+<h4 id="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象"><a href="#一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象" class="headerlink" title="一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象"></a>一、string是redis最基本的类型，而且string类型是二进制安全的。意思是redis的string可以包含任何数据。比如jpg图片或者序列化的对象</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$redis-&gt;set(&apos;key&apos;,&apos;TK&apos;);</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$redis-&gt;set(&apos;number&apos;,&apos;1&apos;);</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$redis-&gt;setex(&apos;key&apos;,5,&apos;TK&apos;); //设置有效期为5秒的键值</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$redis-&gt;psetex(&apos;key&apos;,5000,&apos;TK&apos;); //设置有效期为5000毫秒(同5秒)的键值</span><br></pre></td></tr></table></figure>
@@ -519,7 +520,8 @@
       
         
           
-            <h4 id="一、设置过期时间"><a href="#一、设置过期时间" class="headerlink" title="一、设置过期时间"></a>一、设置过期时间</h4><p>　　Redis对存储值的过期处理实际上是针对该值的键（key）处理的，即时间的设置也是设置key的有效时间。Expires字典保存了所有键的过期时间，Expires也被称为过期字段。</p>
+            <a id="more"></a>
+<h4 id="一、设置过期时间"><a href="#一、设置过期时间" class="headerlink" title="一、设置过期时间"></a>一、设置过期时间</h4><p>　　Redis对存储值的过期处理实际上是针对该值的键（key）处理的，即时间的设置也是设置key的有效时间。Expires字典保存了所有键的过期时间，Expires也被称为过期字段。</p>
 <ul>
 <li>expire key time(以秒为单位)–这是最常用的方式</li>
 <li>setex(String key, int seconds, String value)–字符串独有的方式</li>
