@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="title:Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景一、常用数据类型简介： ​      redis常用五种数据类型:string,hash,list,set,zset(sorted set). 二、jedis操作命令： 1.对value操作的命令 ​     exists(key)：确认一个key是否存在 ​     del(key)：删除一个key">
+<meta name="description" content="一、常用数据类型简介： ​      redis常用五种数据类型:string,hash,list,set,zset(sorted set). 二、jedis操作命令： 1.对value操作的命令 ​     exists(key)：确认一个key是否存在 ​     del(key)：删除一个key ​     type(key)：返回值的类型 ​     keys(pattern)：返回满足给">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Duke Du的博客">
-<meta property="og:url" content="http://yoursite.com/2018/03/22/Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景/index.html">
+<meta property="og:title" content="Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景">
+<meta property="og:url" content="http://yoursite.com/2018/03/22/Redis学习笔记——Redis中各种数据类型对应的jedis操作命令及使用场景/index.html">
 <meta property="og:site_name" content="Duke Du的博客">
-<meta property="og:description" content="title:Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景一、常用数据类型简介： ​      redis常用五种数据类型:string,hash,list,set,zset(sorted set). 二、jedis操作命令： 1.对value操作的命令 ​     exists(key)：确认一个key是否存在 ​     del(key)：删除一个key">
+<meta property="og:description" content="一、常用数据类型简介： ​      redis常用五种数据类型:string,hash,list,set,zset(sorted set). 二、jedis操作命令： 1.对value操作的命令 ​     exists(key)：确认一个key是否存在 ​     del(key)：删除一个key ​     type(key)：返回值的类型 ​     keys(pattern)：返回满足给">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-22T08:51:44.088Z">
+<meta property="og:updated_time" content="2018-03-22T09:12:44.635Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Duke Du的博客">
-<meta name="twitter:description" content="title:Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景一、常用数据类型简介： ​      redis常用五种数据类型:string,hash,list,set,zset(sorted set). 二、jedis操作命令： 1.对value操作的命令 ​     exists(key)：确认一个key是否存在 ​     del(key)：删除一个key">
+<meta name="twitter:title" content="Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景">
+<meta name="twitter:description" content="一、常用数据类型简介： ​      redis常用五种数据类型:string,hash,list,set,zset(sorted set). 二、jedis操作命令： 1.对value操作的命令 ​     exists(key)：确认一个key是否存在 ​     del(key)：删除一个key ​     type(key)：返回值的类型 ​     keys(pattern)：返回满足给">
 
 
 
@@ -119,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/03/22/Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/03/22/Redis学习笔记——Redis中各种数据类型对应的jedis操作命令及使用场景/"/>
 
 
 
 
 
-  <title> | Duke Du的博客</title>
+  <title>Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景 | Duke Du的博客</title>
   
 
 
@@ -232,7 +232,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/22/Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/22/Redis学习笔记——Redis中各种数据类型对应的jedis操作命令及使用场景/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Duke Du">
@@ -249,7 +249,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline"></h1>
+          <h1 class="post-title" itemprop="name headline">Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景</h1>
         
 
         <div class="post-meta">
@@ -299,8 +299,7 @@
       
 
       
-        <hr>
-<h2 id="title-Redis学习笔记——-Redis中各种数据类型对应的jedis操作命令及使用场景"><a href="#title-Redis学习笔记——-Redis中各种数据类型对应的jedis操作命令及使用场景" class="headerlink" title="title:Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景"></a>title:Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景</h2><p>一、常用数据类型简介：</p>
+        <p>一、常用数据类型简介：</p>
 <p>​      redis常用五种数据类型:string,hash,list,set,zset(sorted set).</p>
 <p>二、jedis操作命令：</p>
 <p>1.对value操作的命令</p>
@@ -485,17 +484,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -537,22 +527,6 @@
         </div>
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#title-Redis学习笔记——-Redis中各种数据类型对应的jedis操作命令及使用场景"><span class="nav-number">1.</span> <span class="nav-text">title:Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
