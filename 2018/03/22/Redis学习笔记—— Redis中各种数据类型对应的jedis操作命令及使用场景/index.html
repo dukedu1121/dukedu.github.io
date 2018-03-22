@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="title:Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景一、常用数据类型简介： ​      redis常用五种数据类型:string,hash,list,set,zset(sorted set). 二、jedis操作命令： 1.对value操作的命令 ​     exists(key)：确认一个key是否存在 ​     del(key)：删除一个key">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Duke Du的博客">
+<meta property="og:url" content="http://yoursite.com/2018/03/22/Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景/index.html">
+<meta property="og:site_name" content="Duke Du的博客">
+<meta property="og:description" content="title:Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景一、常用数据类型简介： ​      redis常用五种数据类型:string,hash,list,set,zset(sorted set). 二、jedis操作命令： 1.对value操作的命令 ​     exists(key)：确认一个key是否存在 ​     del(key)：删除一个key">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-22T08:51:44.088Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Duke Du的博客">
+<meta name="twitter:description" content="title:Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景一、常用数据类型简介： ​      redis常用五种数据类型:string,hash,list,set,zset(sorted set). 二、jedis操作命令： 1.对value操作的命令 ​     exists(key)：确认一个key是否存在 ​     del(key)：删除一个key">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/22/Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景/"/>
+
+
+
+
+
+  <title> | Duke Du的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Duke Du的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/22/Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Duke Du">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Duke Du的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline"></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-22T16:48:59+08:00">
+                2018-03-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <hr>
+<h2 id="title-Redis学习笔记——-Redis中各种数据类型对应的jedis操作命令及使用场景"><a href="#title-Redis学习笔记——-Redis中各种数据类型对应的jedis操作命令及使用场景" class="headerlink" title="title:Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景"></a>title:Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景</h2><p>一、常用数据类型简介：</p>
+<p>​      redis常用五种数据类型:string,hash,list,set,zset(sorted set).</p>
+<p>二、jedis操作命令：</p>
+<p>1.对value操作的命令</p>
+<p>​     exists(key)：确认一个key是否存在</p>
+<p>​     del(key)：删除一个key</p>
+<p>​     type(key)：返回值的类型</p>
+<p>​     keys(pattern)：返回满足给定pattern的所有key</p>
+<p>​     randomkey：随机返回key空间的一个key</p>
+<p>​     rename(oldname, newname)：将key由oldname重命名为newname，若newname存在则删除newname表示的key</p>
+<p>​     dbsize：返回当前数据库中key的数目</p>
+<p>​     expire：设定一个key的活动时间（s）</p>
+<p>​     ttl：获得一个key的活动时间</p>
+<p>​     select(index)：按索引查询</p>
+<p>​     move(key, dbindex)：将当前数据库中的key转移到有dbindex索引的数据库</p>
+<p>​     flushdb：删除当前选择数据库中的所有key</p>
+<p>​     flushall：删除所有数据库中的所有key</p>
+<p>2.对String操作的命令</p>
+<p>​     set(key, value)：给数据库中名称为key的string赋予值value</p>
+<p>​     get(key)：返回数据库中名称为key的string的value</p>
+<p>​     getset(key, value)：给名称为key的string赋予上一次的value</p>
+<p>​     mget(key1, key2,…, key N)：返回库中多个string（它们的名称为key1，key2…）的value</p>
+<p>​     setnx(key, value)：如果不存在名称为key的string，则向库中添加string，名称为key，值为value</p>
+<p>​     setex(key, time, value)：向库中添加string（名称为key，值为value）同时，设定过期时间time</p>
+<p>​     mset(key1, value1, key2, value2,…key N, value N)：同时给多个string赋值，名称为key i的string赋值value i</p>
+<p>​     msetnx(key1, value1, key2, value2,…key N, value N)：如果所有名称为key i的string都不存在，则向库中添加string，名称           key i赋值为value i</p>
+<p>​     incr(key)：名称为key的string增1操作</p>
+<p>​     incrby(key, integer)：名称为key的string增加integer</p>
+<p>​     decr(key)：名称为key的string减1操作</p>
+<p>​     decrby(key, integer)：名称为key的string减少integer</p>
+<p>​     append(key, value)：名称为key的string的值附加value</p>
+<p>​     substr(key, start, end)：返回名称为key的string的value的子串</p>
+<p>3.对List操作的命令</p>
+<p>​     rpush(key, value)：在名称为key的list尾添加一个值为value的元素</p>
+<p>​     lpush(key, value)：在名称为key的list头添加一个值为value的 元素</p>
+<p>​     llen(key)：返回名称为key的list的长度</p>
+<p>​     lrange(key, start, end)：返回名称为key的list中start至end之间的元素（下标从0开始，下同）</p>
+<p>​     ltrim(key, start, end)：截取名称为key的list，保留start至end之间的元素</p>
+<p>​     lindex(key, index)：返回名称为key的list中index位置的元素</p>
+<p>​     lset(key, index, value)：给名称为key的list中index位置的元素赋值为value</p>
+<p>​     lrem(key, count, value)：删除count个名称为key的list中值为value的元素。count为0，删除所有值为value的元素，count&gt;0      从头至尾删除count个值为value的元素，count&lt;0从尾到头删除|count|个值为value的元素。</p>
+<p>​     lpop(key)：返回并删除名称为key的list中的首元素</p>
+<p>​     rpop(key)：返回并删除名称为key的list中的尾元素</p>
+<p>​     blpop(key1, key2,… key N, timeout)：lpop 命令的block版本。即当timeout为0时，若遇到名称为key i的list不存在或该list为空，则命令结束。如果 timeout&gt;0，则遇到上述情况时，等待timeout秒，如果问题没有解决，则对key i+1开始的list执行pop操作。</p>
+<p>​     brpop(key1, key2,… key N, timeout)：rpop的block版本。参考上一命令。</p>
+<p>​     rpoplpush(srckey, dstkey)：返回并删除名称为srckey的list的尾元素，并将该元素添加到名称为dstkey的list的头部</p>
+<p>4.对Set操作的命令</p>
+<p>​     sadd(key, member)：向名称为key的set中添加元素member</p>
+<p>​     srem(key, member) ：删除名称为key的set中的元素member</p>
+<p>​     spop(key) ：随机返回并删除名称为key的set中一个元素</p>
+<p>​     smove(srckey, dstkey, member) ：将member元素从名称为srckey的集合移到名称为dstkey的集合</p>
+<p>​     scard(key) ：返回名称为key的set的基数</p>
+<p>​     sismember(key, member) ：测试member是否是名称为key的set的元素</p>
+<p>​     sinter(key1, key2,…key N) ：求交集</p>
+<p>​     sinterstore(dstkey, key1, key2,…key N) ：求交集并将交集保存到dstkey的集合</p>
+<p>​     sunion(key1, key2,…key N) ：求并集</p>
+<p>​     sunionstore(dstkey, key1, key2,…key N) ：求并集并将并集保存到dstkey的集合</p>
+<p>​     sdiff(key1, key2,…key N) ：求差集</p>
+<p>​     sdiffstore(dstkey, key1, key2,…key N) ：求差集并将差集保存到dstkey的集合</p>
+<p>​     smembers(key) ：返回名称为key的set的所有元素</p>
+<p>​     srandmember(key) ：随机返回名称为key的set的一个元素</p>
+<p>5.对zset（sorted set）操作的命令</p>
+<p>​     zadd(key, score, member)：向名称为key的zset中添加元素member，score用于排序。如果该元素已经存在，则根据score更新该元素的顺序。</p>
+<p>​     zrem(key, member) ：删除名称为key的zset中的元素member</p>
+<p>​     zincrby(key, increment, member) ：如果在名称为key的zset中已经存在元素member，则该元素的score增加increment；否则向集合中添加该元素，其score的值为increment</p>
+<p>​     zrank(key, member) ：返回名称为key的zset（元素已按score从小到大排序）中member元素的rank（即index，从0开始），若没有member元素，返回“nil”</p>
+<p>​     zrevrank(key, member) ：返回名称为key的zset（元素已按score从大到小排序）中member元素的rank（即index，从0开始），若没有member元素，返回“nil”</p>
+<p>​     zrange(key, start, end)：返回名称为key的zset（元素已按score从小到大排序）中的index从start到end的所有元素</p>
+<p>​     zrevrange(key, start, end)：返回名称为key的zset（元素已按score从大到小排序）中的index从start到end的所有元素</p>
+<p>​     zrangebyscore(key, min, max)：返回名称为key的zset中score &gt;= min且score &lt;= max的所有元素</p>
+<p>​     zcard(key)：返回名称为key的zset的基数</p>
+<p>​     zscore(key, element)：返回名称为key的zset中元素element的score</p>
+<p>​     zremrangebyrank(key, min, max)：删除名称为key的zset中rank &gt;= min且rank &lt;= max的所有元素</p>
+<p>​     zremrangebyscore(key, min, max) ：删除名称为key的zset中score &gt;= min且score &lt;= max的所有元素</p>
+<p>​     zunionstore / zinterstore(dstkeyN, key1,…,keyN, WEIGHTS w1,…wN, AGGREGATE SUM|MIN|MAX)：对N个zset求并集和交集，并将最后的集合保存在dstkeyN中。对于集合中每一个元素的score，在进行AGGREGATE运算前，都要乘以对于的WEIGHT参数。如果没有提供WEIGHT，默认为1。默认的AGGREGATE是SUM，即结果集合中元素的score是所有集合对应元素进行 SUM运算的值，而MIN和MAX是指，结果集合中元素的score是所有集合对应元素中最小值和最大值。</p>
+<p>6.对Hash操作的命令</p>
+<p>​     hset(key, field, value)：向名称为key的hash中添加元素field&lt;—&gt;value</p>
+<p>​     hget(key, field)：返回名称为key的hash中field对应的value</p>
+<p>​     hmget(key, field1, …,field N)：返回名称为key的hash中field i对应的value</p>
+<p>​     hmset(key, field1, value1,…,field N, value N)：向名称为key的hash中添加元素field i&lt;—&gt;value i</p>
+<p>​     hincrby(key, field, integer)：将名称为key的hash中field的value增加integer</p>
+<p>​     hexists(key, field)：名称为key的hash中是否存在键为field的域</p>
+<p>​     hdel(key, field)：删除名称为key的hash中键为field的域</p>
+<p>​     hlen(key)：返回名称为key的hash中元素个数</p>
+<p>​     hkeys(key)：返回名称为key的hash中所有键</p>
+<p>​     hvals(key)：返回名称为key的hash中所有键对应的value</p>
+<p>​     hgetall(key)：返回名称为key的hash中所有的键（field）及其对应的value</p>
+<p>三、各种数据类型所对应的应用场景</p>
+<p>1.String类型的应用场景</p>
+<p>   String是最常用的一种数据类型,普通的key/value存储.</p>
+<p>2.list类型的应用场景</p>
+<p>   比较适用于列表式存储且顺序相对比较固定，例如：省份、城市列表、品牌、厂商、车系、车型等列表、专题列表…</p>
+<p>3.set类型的应用场景</p>
+<p>   Set对外提供的功能与list类似,当需要存储一个列表数据,又不希望出现重复数据时,可选用set</p>
+<p>4.zset(sorted set)类型的应用场景</p>
+<p>zset的使用场景与set类似,区别是set不是自动有序的,而zset可以通过用户额外提供一个优先级(score)的参数来为成员排序,并且是插入有序的,即自动排序.当你需要一个有序的并且不重复的集合列表,那么可以选择zset数据结构。例如:根据PV排序的热门车系车型列表，根据时间排序的新闻列表</p>
+<p>5.hash类型的应用场景</p>
+<p>类似于表记录的存储，页面视图所需数据的存储</p>
+<p>四、具体使用参考示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br></pre></td><td class="code"><pre><span class="line">private void testKey() &#123;  </span><br><span class="line">      System.out.println(&quot;=============key==========================&quot;);  </span><br><span class="line">      // 清空数据  </span><br><span class="line">      System.out.println(jedis.flushDB());  </span><br><span class="line">      System.out.println(jedis.echo(&quot;foo&quot;));  </span><br><span class="line">      // 判断key否存在  </span><br><span class="line">      System.out.println(shardedJedis.exists(&quot;foo&quot;));  </span><br><span class="line">      shardedJedis.set(&quot;key&quot;, &quot;values&quot;);  </span><br><span class="line">      System.out.println(shardedJedis.exists(&quot;key&quot;));  </span><br><span class="line">  &#125;  </span><br><span class="line">   </span><br><span class="line">  private void testString() &#123;  </span><br><span class="line">      System.out.println(&quot;=============String==========================&quot;);  </span><br><span class="line">      // 清空数据  </span><br><span class="line">      System.out.println(jedis.flushDB());  </span><br><span class="line">      // 存储数据  </span><br><span class="line">      shardedJedis.set(&quot;foo&quot;, &quot;bar&quot;);  </span><br><span class="line">      System.out.println(shardedJedis.get(&quot;foo&quot;));  </span><br><span class="line">      // 若key不存在，则存储  </span><br><span class="line">      shardedJedis.setnx(&quot;foo&quot;, &quot;foo not exits&quot;);  </span><br><span class="line">      System.out.println(shardedJedis.get(&quot;foo&quot;));  </span><br><span class="line">      // 覆盖数据  </span><br><span class="line">      shardedJedis.set(&quot;foo&quot;, &quot;foo update&quot;);  </span><br><span class="line">      System.out.println(shardedJedis.get(&quot;foo&quot;));  </span><br><span class="line">      // 追加数据  </span><br><span class="line">      shardedJedis.append(&quot;foo&quot;, &quot; hello, world&quot;);  </span><br><span class="line">      System.out.println(shardedJedis.get(&quot;foo&quot;));  </span><br><span class="line">      // 设置key的有效期，并存储数据  </span><br><span class="line">      shardedJedis.setex(&quot;foo&quot;, 2, &quot;foo not exits&quot;);  </span><br><span class="line">      System.out.println(shardedJedis.get(&quot;foo&quot;));  </span><br><span class="line">      try &#123;  </span><br><span class="line">          Thread.sleep(3000);  </span><br><span class="line">      &#125; catch (InterruptedException e) &#123;  </span><br><span class="line">      &#125;  </span><br><span class="line">      System.out.println(shardedJedis.get(&quot;foo&quot;));  </span><br><span class="line">      // 获取并更改数据  </span><br><span class="line">      shardedJedis.set(&quot;foo&quot;, &quot;foo update&quot;);  </span><br><span class="line">      System.out.println(shardedJedis.getSet(&quot;foo&quot;, &quot;foo modify&quot;));  </span><br><span class="line">      // 截取value的值  </span><br><span class="line">      System.out.println(shardedJedis.getrange(&quot;foo&quot;, 1, 3));  </span><br><span class="line">      System.out.println(jedis.mset(&quot;mset1&quot;, &quot;mvalue1&quot;, &quot;mset2&quot;, &quot;mvalue2&quot;, &quot;mset3&quot;, &quot;mvalue3&quot;, &quot;mset4&quot;, &quot;mvalue4&quot;));  </span><br><span class="line">      System.out.println(jedis.mget(&quot;mset1&quot;, &quot;mset2&quot;, &quot;mset3&quot;, &quot;mset4&quot;));  </span><br><span class="line">      System.out.println(jedis.del(new String[] &#123; &quot;foo&quot;, &quot;foo1&quot;, &quot;foo3&quot; &#125;));  </span><br><span class="line">  &#125;  </span><br><span class="line">   </span><br><span class="line">  private void testList() &#123;  </span><br><span class="line">      System.out.println(&quot;=============list==========================&quot;);  </span><br><span class="line">      // 清空数据  </span><br><span class="line">      System.out.println(jedis.flushDB());  </span><br><span class="line">      // 添加数据  </span><br><span class="line">      shardedJedis.lpush(&quot;lists&quot;, &quot;vector&quot;);  </span><br><span class="line">      shardedJedis.lpush(&quot;lists&quot;, &quot;ArrayList&quot;);  </span><br><span class="line">      shardedJedis.lpush(&quot;lists&quot;, &quot;LinkedList&quot;);  </span><br><span class="line">      // 数组长度  </span><br><span class="line">      System.out.println(shardedJedis.llen(&quot;lists&quot;));  </span><br><span class="line">      // 排序  </span><br><span class="line">      System.out.println(shardedJedis.sort(&quot;lists&quot;));  </span><br><span class="line">      // 字串  </span><br><span class="line">      System.out.println(shardedJedis.lrange(&quot;lists&quot;, 0, 3));  </span><br><span class="line">      // 修改列表中单个值  </span><br><span class="line">      shardedJedis.lset(&quot;lists&quot;, 0, &quot;hello list!&quot;);  </span><br><span class="line">      // 获取列表指定下标的值  </span><br><span class="line">      System.out.println(shardedJedis.lindex(&quot;lists&quot;, 1));  </span><br><span class="line">      // 删除列表指定下标的值  </span><br><span class="line">      System.out.println(shardedJedis.lrem(&quot;lists&quot;, 1, &quot;vector&quot;));  </span><br><span class="line">      // 删除区间以外的数据  </span><br><span class="line">      System.out.println(shardedJedis.ltrim(&quot;lists&quot;, 0, 1));  </span><br><span class="line">      // 列表出栈  </span><br><span class="line">      System.out.println(shardedJedis.lpop(&quot;lists&quot;));  </span><br><span class="line">      // 整个列表值  </span><br><span class="line">      System.out.println(shardedJedis.lrange(&quot;lists&quot;, 0, -1));  </span><br><span class="line">   </span><br><span class="line">  &#125;  </span><br><span class="line">   </span><br><span class="line">  private void testSet() &#123;  </span><br><span class="line">      System.out.println(&quot;=============set==========================&quot;);  </span><br><span class="line">      // 清空数据  </span><br><span class="line">      System.out.println(jedis.flushDB());  </span><br><span class="line">      // 添加数据  </span><br><span class="line">      shardedJedis.sadd(&quot;sets&quot;, &quot;HashSet&quot;);  </span><br><span class="line">      shardedJedis.sadd(&quot;sets&quot;, &quot;SortedSet&quot;);  </span><br><span class="line">      shardedJedis.sadd(&quot;sets&quot;, &quot;TreeSet&quot;);  </span><br><span class="line">      // 判断value是否在列表中  </span><br><span class="line">      System.out.println(shardedJedis.sismember(&quot;sets&quot;, &quot;TreeSet&quot;));  </span><br><span class="line">      ;  </span><br><span class="line">      // 整个列表值  </span><br><span class="line">      System.out.println(shardedJedis.smembers(&quot;sets&quot;));  </span><br><span class="line">      // 删除指定元素  </span><br><span class="line">      System.out.println(shardedJedis.srem(&quot;sets&quot;, &quot;SortedSet&quot;));  </span><br><span class="line">      // 出栈  </span><br><span class="line">      System.out.println(shardedJedis.spop(&quot;sets&quot;));  </span><br><span class="line">      System.out.println(shardedJedis.smembers(&quot;sets&quot;));  </span><br><span class="line">      //  </span><br><span class="line">      shardedJedis.sadd(&quot;sets1&quot;, &quot;HashSet1&quot;);  </span><br><span class="line">      shardedJedis.sadd(&quot;sets1&quot;, &quot;SortedSet1&quot;);  </span><br><span class="line">      shardedJedis.sadd(&quot;sets1&quot;, &quot;TreeSet&quot;);  </span><br><span class="line">      shardedJedis.sadd(&quot;sets2&quot;, &quot;HashSet2&quot;);  </span><br><span class="line">      shardedJedis.sadd(&quot;sets2&quot;, &quot;SortedSet1&quot;);  </span><br><span class="line">      shardedJedis.sadd(&quot;sets2&quot;, &quot;TreeSet1&quot;);  </span><br><span class="line">      // 交集  </span><br><span class="line">      System.out.println(jedis.sinter(&quot;sets1&quot;, &quot;sets2&quot;));  </span><br><span class="line">      // 并集  </span><br><span class="line">      System.out.println(jedis.sunion(&quot;sets1&quot;, &quot;sets2&quot;));  </span><br><span class="line">      // 差集  </span><br><span class="line">      System.out.println(jedis.sdiff(&quot;sets1&quot;, &quot;sets2&quot;));  </span><br><span class="line">  &#125;  </span><br><span class="line">   </span><br><span class="line">  private void testSortedSet() &#123;  </span><br><span class="line">      System.out.println(&quot;=============zset==========================&quot;);  </span><br><span class="line">      // 清空数据  </span><br><span class="line">      System.out.println(jedis.flushDB());  </span><br><span class="line">      // 添加数据  </span><br><span class="line">      shardedJedis.zadd(&quot;zset&quot;, 10.1, &quot;hello&quot;);  </span><br><span class="line">      shardedJedis.zadd(&quot;zset&quot;, 10.0, &quot;:&quot;);  </span><br><span class="line">      shardedJedis.zadd(&quot;zset&quot;, 9.0, &quot;zset&quot;);  </span><br><span class="line">      shardedJedis.zadd(&quot;zset&quot;, 11.0, &quot;zset!&quot;);  </span><br><span class="line">      // 元素个数  </span><br><span class="line">      System.out.println(shardedJedis.zcard(&quot;zset&quot;));  </span><br><span class="line">      // 元素下标  </span><br><span class="line">      System.out.println(shardedJedis.zscore(&quot;zset&quot;, &quot;zset&quot;));  </span><br><span class="line">      // 集合子集  </span><br><span class="line">      System.out.println(shardedJedis.zrange(&quot;zset&quot;, 0, -1));  </span><br><span class="line">      // 删除元素  </span><br><span class="line">      System.out.println(shardedJedis.zrem(&quot;zset&quot;, &quot;zset!&quot;));  </span><br><span class="line">      System.out.println(shardedJedis.zcount(&quot;zset&quot;, 9.5, 10.5));  </span><br><span class="line">      // 整个集合值  </span><br><span class="line">      System.out.println(shardedJedis.zrange(&quot;zset&quot;, 0, -1));  </span><br><span class="line">  &#125;  </span><br><span class="line">   </span><br><span class="line">  private void testHash() &#123;  </span><br><span class="line">      System.out.println(&quot;=============hash==========================&quot;);  </span><br><span class="line">      // 清空数据  </span><br><span class="line">      System.out.println(jedis.flushDB());  </span><br><span class="line">      // 添加数据  </span><br><span class="line">      shardedJedis.hset(&quot;hashs&quot;, &quot;entryKey&quot;, &quot;entryValue&quot;);  </span><br><span class="line">      shardedJedis.hset(&quot;hashs&quot;, &quot;entryKey1&quot;, &quot;entryValue1&quot;);  </span><br><span class="line">      shardedJedis.hset(&quot;hashs&quot;, &quot;entryKey2&quot;, &quot;entryValue2&quot;);  </span><br><span class="line">      // 判断某个值是否存在  </span><br><span class="line">      System.out.println(shardedJedis.hexists(&quot;hashs&quot;, &quot;entryKey&quot;));  </span><br><span class="line">      // 获取指定的值  </span><br><span class="line">      System.out.println(shardedJedis.hget(&quot;hashs&quot;, &quot;entryKey&quot;));        // 批量获取指定的值  </span><br><span class="line">      System.out.println(shardedJedis.hmget(&quot;hashs&quot;, &quot;entryKey&quot;, &quot;entryKey1&quot;));  </span><br><span class="line">      // 删除指定的值  </span><br><span class="line">      System.out.println(shardedJedis.hdel(&quot;hashs&quot;, &quot;entryKey&quot;));  </span><br><span class="line">      // 为key中的域 field 的值加上增量 increment  </span><br><span class="line">      System.out.println(shardedJedis.hincrBy(&quot;hashs&quot;, &quot;entryKey&quot;, 123l));  </span><br><span class="line">      // 获取所有的keys  </span><br><span class="line">      System.out.println(shardedJedis.hkeys(&quot;hashs&quot;));  </span><br><span class="line">      // 获取所有的values  </span><br><span class="line">      System.out.println(shardedJedis.hvals(&quot;hashs&quot;));  </span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>源博客地址：<a href="http://blog.csdn.net/a183400826/article/details/52605560" target="_blank" rel="noopener">http://blog.csdn.net/a183400826/article/details/52605560</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/13/Redis学习笔记——数据过期策略/" rel="next" title="Redis学习笔记——数据过期策略">
+                <i class="fa fa-chevron-left"></i> Redis学习笔记——数据过期策略
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Duke Du</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#title-Redis学习笔记——-Redis中各种数据类型对应的jedis操作命令及使用场景"><span class="nav-number">1.</span> <span class="nav-text">title:Redis学习笔记—— Redis中各种数据类型对应的jedis操作命令及使用场景</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Duke Du</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
