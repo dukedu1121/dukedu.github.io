@@ -91,7 +91,7 @@
 <meta property="og:image" content="http://img.blog.csdn.net/20151216092504782">
 <meta property="og:image" content="http://img.blog.csdn.net/20151216092536993">
 <meta property="og:image" content="http://img.blog.csdn.net/20151216093224720">
-<meta property="og:updated_time" content="2018-03-26T11:40:35.383Z">
+<meta property="og:updated_time" content="2018-03-26T11:43:59.134Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="git reset、checkout &amp; revert 代码回滚">
 <meta name="twitter:description" content="git reset 和 git checkout 即可以用于commit，也可以用于一个文件，而 revert只能用于commit git revert：撤销某次commit的修改，并且自动新建一个commit提交，git log中添加新的revert日志；revert只能作用于commit，不能用于文件假设当前有3个commit，git log如下： 123commit3:  add test3">
@@ -349,7 +349,7 @@
 <p>Remember: Git reset will alter the existing commit history. For this reason, git revert should be used to undo changes on a public branch, and git reset should be reserved for undoing changes on a private branch.</p>
 <p>You can also think of git revert as a tool for undoing <strong>committed</strong> changes, while <strong>git reset HEAD</strong> is for undoing <strong>uncommitted</strong> changes.</p>
 </blockquote>
-<h1 id="git撤销提交到暂存区的代码，撤销更改过的代码"><a href="#git撤销提交到暂存区的代码，撤销更改过的代码" class="headerlink" title="git撤销提交到暂存区的代码，撤销更改过的代码"></a>git撤销提交到暂存区的代码，撤销更改过的代码</h1><ul>
+<h2 id="git撤销提交到暂存区的代码，撤销更改过的代码"><a href="#git撤销提交到暂存区的代码，撤销更改过的代码" class="headerlink" title="git撤销提交到暂存区的代码，撤销更改过的代码"></a><strong>git撤销提交到暂存区的代码，撤销更改过的代码</strong></h2><ul>
 <li>git reset HEAD  – <file> 撤销提交到暂存区的代码</file></li>
 <li>撤销掉修改：git checkout – <file></file></li>
 </ul>
@@ -507,7 +507,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#git-revert："><span class="nav-number">1.</span> <span class="nav-text">git revert：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#git-checkout"><span class="nav-number">2.</span> <span class="nav-text">git checkout</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#git-reset："><span class="nav-number">3.</span> <span class="nav-text">git reset：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#git撤销提交到暂存区的代码，撤销更改过的代码"><span class="nav-number"></span> <span class="nav-text">git撤销提交到暂存区的代码，撤销更改过的代码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#But-But-But…"><span class="nav-number">1.</span> <span class="nav-text">But But But…</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#git-revert："><span class="nav-number">1.</span> <span class="nav-text">git revert：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#git-checkout"><span class="nav-number">2.</span> <span class="nav-text">git checkout</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#git-reset："><span class="nav-number">3.</span> <span class="nav-text">git reset：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#git撤销提交到暂存区的代码，撤销更改过的代码"><span class="nav-number">4.</span> <span class="nav-text">git撤销提交到暂存区的代码，撤销更改过的代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#But-But-But…"><span class="nav-number">5.</span> <span class="nav-text">But But But…</span></a></li></ol></div>
             
 
           </div>
