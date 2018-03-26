@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="背景：gRPC是一个高性能、通用的开源RPC框架，其由Google主要面向移动应用开发并基于HTTP/2协议标准而设计，基于ProtoBuf(Protocol Buffers)序列化协议开发，且支持众多开发语言。gRPC提供了一种简单的方法来精确地定义服务和为iOS、Android和后台支持服务自动生成可靠性很强的客户端功能库。客户端充分利用高级流和链接功能，从而有助于节省带宽、降低的TCP链接次">
+<meta property="og:type" content="article">
+<meta property="og:title" content="grpc 初探">
+<meta property="og:url" content="http://yoursite.com/2018/03/26/grpc-初探/index.html">
+<meta property="og:site_name" content="Duke Du的博客">
+<meta property="og:description" content="背景：gRPC是一个高性能、通用的开源RPC框架，其由Google主要面向移动应用开发并基于HTTP/2协议标准而设计，基于ProtoBuf(Protocol Buffers)序列化协议开发，且支持众多开发语言。gRPC提供了一种简单的方法来精确地定义服务和为iOS、Android和后台支持服务自动生成可靠性很强的客户端功能库。客户端充分利用高级流和链接功能，从而有助于节省带宽、降低的TCP链接次">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:image" content="https://common.cnblogs.com/images/copycode.gif">
+<meta property="og:updated_time" content="2018-03-26T03:23:57.457Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="grpc 初探">
+<meta name="twitter:description" content="背景：gRPC是一个高性能、通用的开源RPC框架，其由Google主要面向移动应用开发并基于HTTP/2协议标准而设计，基于ProtoBuf(Protocol Buffers)序列化协议开发，且支持众多开发语言。gRPC提供了一种简单的方法来精确地定义服务和为iOS、Android和后台支持服务自动生成可靠性很强的客户端功能库。客户端充分利用高级流和链接功能，从而有助于节省带宽、降低的TCP链接次">
+<meta name="twitter:image" content="https://common.cnblogs.com/images/copycode.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/26/grpc-初探/"/>
+
+
+
+
+
+  <title>grpc 初探 | Duke Du的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Duke Du的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/26/grpc-初探/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Duke Du">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Duke Du的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">grpc 初探</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-26T11:21:07+08:00">
+                2018-03-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>背景：gRPC是一个高性能、通用的开源RPC框架，其由Google主要面向移动应用开发并基于HTTP/2协议标准而设计，基于ProtoBuf(Protocol Buffers)序列化协议开发，且支持众多开发语言。gRPC提供了一种简单的方法来精确地定义服务和为iOS、Android和后台支持服务自动生成可靠性很强的客户端功能库。客户端充分利用高级流和链接功能，从而有助于节省带宽、降低的TCP链接次数、节省CPU使用、和电池寿命。 以下初探编码过程：</p>
+<p><strong>1、安装插件Protobuf-dt最新版本，我的版本为2.2.1</strong></p>
+<p><strong>2、下载protobuf</strong></p>
+<p>​    找到对应操作系统版本（我的系统为OS）直接解压到某个目录（我的目录为：/Users/peng/protoc-3.0.0-beta-2-osx-x86_64），链接：<a href="https://github.com/google/protobuf" target="_blank" rel="noopener">https://github.com/google/protobuf</a></p>
+<p> <strong>3、新建maven项目，过程省略</strong></p>
+<p> <strong>4、在pom.xml文件中添加gRPC的相关依赖</strong>  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">      &lt;groupId&gt;io.grpc&lt;/groupId&gt;</span><br><span class="line">      &lt;artifactId&gt;grpc-all&lt;/artifactId&gt;</span><br><span class="line">      &lt;version&gt;0.13.2&lt;/version&gt;</span><br><span class="line"> &lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p>​    添加maven-protobuf-plugin，在pom.xml中添加以下内容</p>
+<p><a href="javascript:void(0" target="_blank" rel="noopener"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">&lt;build&gt; </span><br><span class="line"></span><br><span class="line">    &lt;extensions&gt; </span><br><span class="line"></span><br><span class="line">        &lt;extension&gt; </span><br><span class="line"></span><br><span class="line">            &lt;groupId&gt;kr.motd.maven&lt;/groupId&gt; </span><br><span class="line"></span><br><span class="line">            &lt;artifactId&gt;os-maven-plugin&lt;/artifactId&gt; </span><br><span class="line"></span><br><span class="line">            &lt;version&gt;1.4.1.Final&lt;/version&gt; </span><br><span class="line"></span><br><span class="line">        &lt;/extension&gt; </span><br><span class="line"></span><br><span class="line">    &lt;/extensions&gt; </span><br><span class="line"></span><br><span class="line">    &lt;plugins&gt; </span><br><span class="line"></span><br><span class="line">        &lt;plugin&gt; </span><br><span class="line"></span><br><span class="line">            &lt;groupId&gt;org.xolstice.maven.plugins&lt;/groupId&gt; </span><br><span class="line"></span><br><span class="line">            &lt;artifactId&gt;protobuf-maven-plugin&lt;/artifactId&gt; </span><br><span class="line"></span><br><span class="line">            &lt;version&gt;0.5.0&lt;/version&gt; </span><br><span class="line"></span><br><span class="line">            &lt;configuration&gt; </span><br><span class="line"></span><br><span class="line">                &lt;!-- </span><br><span class="line"></span><br><span class="line">                  The version of protoc must match protobuf-java. If you don&apos;t depend on </span><br><span class="line"></span><br><span class="line">                  protobuf-java directly, you will be transitively depending on the </span><br><span class="line"></span><br><span class="line">                  protobuf-java version that grpc depends on. </span><br><span class="line"></span><br><span class="line">                --&gt; </span><br><span class="line"></span><br><span class="line">                &lt;protocArtifact&gt;com.google.protobuf:protoc:3.0.0-beta-2:exe:$&#123;os.detected.classifier&#125;&lt;/protocArtifact&gt; </span><br><span class="line"></span><br><span class="line">                &lt;pluginId&gt;grpc-java&lt;/pluginId&gt; </span><br><span class="line"></span><br><span class="line">                &lt;pluginArtifact&gt;io.grpc:protoc-gen-grpc-java:0.13.2:exe:$&#123;os.detected.classifier&#125;&lt;/pluginArtifact&gt; </span><br><span class="line"></span><br><span class="line">                &lt;protocExecutable&gt;/Users/peng/protoc-3.0.0-beta-2-osx-x86_64/protoc&lt;/protocExecutable&gt;</span><br><span class="line"></span><br><span class="line">            &lt;/configuration&gt; </span><br><span class="line"></span><br><span class="line">            &lt;executions&gt; </span><br><span class="line"></span><br><span class="line">                &lt;execution&gt; </span><br><span class="line"></span><br><span class="line">                    &lt;goals&gt; </span><br><span class="line"></span><br><span class="line">                        &lt;goal&gt;compile&lt;/goal&gt; </span><br><span class="line"></span><br><span class="line">                        &lt;goal&gt;compile-custom&lt;/goal&gt; </span><br><span class="line"></span><br><span class="line">                    &lt;/goals&gt; </span><br><span class="line"></span><br><span class="line">                &lt;/execution&gt; </span><br><span class="line"></span><br><span class="line">            &lt;/executions&gt; </span><br><span class="line"></span><br><span class="line">        &lt;/plugin&gt; </span><br><span class="line"></span><br><span class="line">    &lt;/plugins&gt; </span><br><span class="line"></span><br><span class="line">&lt;/build&gt;</span><br></pre></td></tr></table></figure>
+<p>注意protocExecutable节点后的目录为第2步中protobuf的安装路径</p>
+<p>最终的pom.xml文件如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span><br><span class="line">  xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;</span><br><span class="line">  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;</span><br><span class="line"></span><br><span class="line">  &lt;groupId&gt;com.mzsg.demo&lt;/groupId&gt;</span><br><span class="line">  &lt;artifactId&gt;grpc&lt;/artifactId&gt;</span><br><span class="line">  &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;</span><br><span class="line">  &lt;packaging&gt;jar&lt;/packaging&gt;</span><br><span class="line"></span><br><span class="line">  &lt;name&gt;grpc&lt;/name&gt;</span><br><span class="line">  &lt;url&gt;http://maven.apache.org&lt;/url&gt;</span><br><span class="line"></span><br><span class="line">  &lt;properties&gt;</span><br><span class="line">    &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;</span><br><span class="line">  &lt;/properties&gt;</span><br><span class="line"></span><br><span class="line">  &lt;dependencies&gt;</span><br><span class="line">    &lt;dependency&gt;</span><br><span class="line">      &lt;groupId&gt;junit&lt;/groupId&gt;</span><br><span class="line">      &lt;artifactId&gt;junit&lt;/artifactId&gt;</span><br><span class="line">      &lt;version&gt;3.8.1&lt;/version&gt;</span><br><span class="line">      &lt;scope&gt;test&lt;/scope&gt;</span><br><span class="line">    &lt;/dependency&gt;</span><br><span class="line">     &lt;dependency&gt;</span><br><span class="line">      &lt;groupId&gt;io.grpc&lt;/groupId&gt;</span><br><span class="line">      &lt;artifactId&gt;grpc-all&lt;/artifactId&gt;</span><br><span class="line">      &lt;version&gt;0.13.2&lt;/version&gt;</span><br><span class="line">    &lt;/dependency&gt;</span><br><span class="line">  &lt;/dependencies&gt;</span><br><span class="line">  </span><br><span class="line">  &lt;build&gt; </span><br><span class="line">        &lt;extensions&gt; </span><br><span class="line">            &lt;extension&gt; </span><br><span class="line">                &lt;groupId&gt;kr.motd.maven&lt;/groupId&gt; </span><br><span class="line">                &lt;artifactId&gt;os-maven-plugin&lt;/artifactId&gt; </span><br><span class="line">                &lt;version&gt;1.4.1.Final&lt;/version&gt; </span><br><span class="line">            &lt;/extension&gt; </span><br><span class="line">        &lt;/extensions&gt; </span><br><span class="line">        &lt;plugins&gt; </span><br><span class="line">            &lt;plugin&gt; </span><br><span class="line">                &lt;groupId&gt;org.xolstice.maven.plugins&lt;/groupId&gt; </span><br><span class="line">                &lt;artifactId&gt;protobuf-maven-plugin&lt;/artifactId&gt; </span><br><span class="line">                &lt;version&gt;0.5.0&lt;/version&gt; </span><br><span class="line">                &lt;configuration&gt; </span><br><span class="line">                    &lt;!-- </span><br><span class="line">                      The version of protoc must match protobuf-java. If you don&apos;t depend on </span><br><span class="line">                      protobuf-java directly, you will be transitively depending on the </span><br><span class="line">                      protobuf-java version that grpc depends on. </span><br><span class="line">                    --&gt; </span><br><span class="line">                    &lt;protocArtifact&gt;com.google.protobuf:protoc:3.0.0-beta-2:exe:$&#123;os.detected.classifier&#125;&lt;/protocArtifact&gt; </span><br><span class="line">                    &lt;pluginId&gt;grpc-java&lt;/pluginId&gt; </span><br><span class="line">                    &lt;pluginArtifact&gt;io.grpc:protoc-gen-grpc-java:0.13.2:exe:$&#123;os.detected.classifier&#125;&lt;/pluginArtifact&gt; </span><br><span class="line">                    &lt;protocExecutable&gt;/Users/peng/protoc-3.0.0-beta-2-osx-x86_64/protoc&lt;/protocExecutable&gt;</span><br><span class="line">                &lt;/configuration&gt; </span><br><span class="line">                &lt;executions&gt; </span><br><span class="line">                    &lt;execution&gt; </span><br><span class="line">                        &lt;goals&gt; </span><br><span class="line">                            &lt;goal&gt;compile&lt;/goal&gt; </span><br><span class="line">                            &lt;goal&gt;compile-custom&lt;/goal&gt; </span><br><span class="line">                        &lt;/goals&gt; </span><br><span class="line">                    &lt;/execution&gt; </span><br><span class="line">                &lt;/executions&gt; </span><br><span class="line">            &lt;/plugin&gt; </span><br><span class="line">        &lt;/plugins&gt; </span><br><span class="line">    &lt;/build&gt; </span><br><span class="line">&lt;/project&gt;</span><br></pre></td></tr></table></figure>
+<p><strong>5、编写proto文件，描述入参、出参及远程方法</strong></p>
+<p>在src/main下面建立proto目录，protobuf-maven-plugin默认会扫描该目录以生成java文件</p>
+<p>在proto目录下新建文件，AccountQry.proto，内容为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">syntax = &quot;proto3&quot;;</span><br><span class="line">package accountService;</span><br><span class="line">option java_package = &quot;com.mzsg.demo.grpc.qryaccount&quot;;</span><br><span class="line">option java_outer_classname = &quot;QryAccountProto&quot;;</span><br><span class="line"></span><br><span class="line">//账户查询请求</span><br><span class="line">message AccountQryRequest &#123;</span><br><span class="line">  //请求流水</span><br><span class="line">  string requestId = 1;</span><br><span class="line">  //用户ID</span><br><span class="line">  string userId = 2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//账户查询响应</span><br><span class="line">message AccountQryResponse &#123;</span><br><span class="line">  //请求流水</span><br><span class="line">  string requestId = 1;</span><br><span class="line">  //返回码，1:成功; -1:失败</span><br><span class="line">  int32 rc = 2;</span><br><span class="line">  //错误消息</span><br><span class="line">  string msg = 3;</span><br><span class="line">  //账户余额</span><br><span class="line">  int32 amount = 4;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * 账户操查询服务</span><br><span class="line"> */</span><br><span class="line">service QryAccountService &#123;</span><br><span class="line"></span><br><span class="line">  //账户查询方法</span><br><span class="line">  rpc Qry(AccountQryRequest) returns (AccountQryResponse);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意：本例用查账户查询作为demo，因为涉及到后面的性能（包括了序列化，反序列化）对比，故不再简单采用Hello world来测试</p>
+<p><strong>6、运行maven-generate-source，生成proto对应的java文件</strong></p>
+<p>grpc-java下的为方法，java下的为入参出参，将这两个文件copy到com.mzsg.demo.grpc.qryaccount包下</p>
+<p>注意：QryAccountServiceGrpc.java文件会提示@Override注解报错，直接删除注解即可，另外生成的代码也不是很简洁，有点无语</p>
+<p><strong>7、编写接口实现类QryAccountServiceImpl.java</strong> </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">package com.mzsg.demo.grpc.qryaccount.impl;</span><br><span class="line"></span><br><span class="line">import com.mzsg.demo.grpc.qryaccount.QryAccountProto;</span><br><span class="line">import com.mzsg.demo.grpc.qryaccount.QryAccountProto.AccountQryRequest;</span><br><span class="line">import com.mzsg.demo.grpc.qryaccount.QryAccountProto.AccountQryResponse;</span><br><span class="line">import com.mzsg.demo.grpc.qryaccount.QryAccountServiceGrpc.QryAccountService;</span><br><span class="line"></span><br><span class="line">import io.grpc.stub.StreamObserver;</span><br><span class="line"></span><br><span class="line">public class QryAccountServiceImpl implements QryAccountService &#123;</span><br><span class="line"></span><br><span class="line">    public void qry(AccountQryRequest request, StreamObserver&lt;AccountQryResponse&gt; responseObserver) &#123;</span><br><span class="line">        System.out.println(&quot;qry &quot; + request.getUserId());</span><br><span class="line">        AccountQryResponse response = QryAccountProto.AccountQryResponse.newBuilder().setRc(1).setAmount(666).build();</span><br><span class="line">        responseObserver.onNext(response);</span><br><span class="line">        responseObserver.onCompleted();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>8、编码Server端代码Server.java</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">package com.mzsg.demo.grpc;</span><br><span class="line"></span><br><span class="line">import java.io.IOException;</span><br><span class="line"></span><br><span class="line">import com.mzsg.demo.grpc.qryaccount.QryAccountServiceGrpc;</span><br><span class="line">import com.mzsg.demo.grpc.qryaccount.impl.QryAccountServiceImpl;</span><br><span class="line"></span><br><span class="line">public class Server &#123;</span><br><span class="line"></span><br><span class="line">       private static int port = 8883;</span><br><span class="line">        private static io.grpc.Server server;</span><br><span class="line"></span><br><span class="line">        public void run() &#123;</span><br><span class="line">            QryAccountServiceGrpc.QryAccountService modifyAccountServiceImpl = new QryAccountServiceImpl();</span><br><span class="line">            server = io.grpc.ServerBuilder.forPort(port).addService(QryAccountServiceGrpc.bindService(modifyAccountServiceImpl)).build();</span><br><span class="line">            try &#123;</span><br><span class="line">                server.start();</span><br><span class="line">                System.out.println(&quot;Server start success on port:&quot; + port);</span><br><span class="line">                server.awaitTermination();</span><br><span class="line">            &#125; catch (IOException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        public static void main(String[] args) &#123;</span><br><span class="line">            Server server = new Server();</span><br><span class="line">            server.run();</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>9、编码Client端代码Client.java</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">package com.mzsg.demo.grpc;</span><br><span class="line"></span><br><span class="line">import java.io.FileNotFoundException;</span><br><span class="line">import java.io.IOException;</span><br><span class="line"></span><br><span class="line">import com.mzsg.demo.grpc.qryaccount.QryAccountProto;</span><br><span class="line">import com.mzsg.demo.grpc.qryaccount.QryAccountProto.AccountQryRequest;</span><br><span class="line">import com.mzsg.demo.grpc.qryaccount.QryAccountProto.AccountQryResponse;</span><br><span class="line">import com.mzsg.demo.grpc.qryaccount.QryAccountServiceGrpc;</span><br><span class="line">import com.mzsg.demo.grpc.qryaccount.QryAccountServiceGrpc.QryAccountServiceBlockingStub;</span><br><span class="line"></span><br><span class="line">import io.grpc.ManagedChannel;</span><br><span class="line">import io.grpc.ManagedChannelBuilder;</span><br><span class="line"></span><br><span class="line">public class Client &#123;</span><br><span class="line">    public static void main( String[] args ) throws FileNotFoundException, IOException&#123;</span><br><span class="line">        AccountQryRequest request = QryAccountProto.AccountQryRequest.newBuilder().setUserId(&quot;20012&quot;).setRequestId(&quot;123&quot;).build();</span><br><span class="line">        ManagedChannel channel = ManagedChannelBuilder</span><br><span class="line">                  .forAddress(&quot;localhost&quot;, 8883)</span><br><span class="line">                  .usePlaintext(true)</span><br><span class="line">                  .build();</span><br><span class="line">        QryAccountServiceBlockingStub stub = QryAccountServiceGrpc.newBlockingStub(channel);</span><br><span class="line">        for (int j = 0; j &lt; 20; j++) &#123;</span><br><span class="line">            long start = System.currentTimeMillis();</span><br><span class="line">                for(int i=0; i&lt;10000; i++)&#123;</span><br><span class="line">                    AccountQryResponse rsp = stub.qry(request);</span><br><span class="line">                    //System.out.println(rsp);</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(System.currentTimeMillis() - start + &quot; MS&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a href="javascript:void(0" target="_blank" rel="noopener"><img src="https://common.cnblogs.com/images/copycode.gif" alt="复制代码"></a>;)</p>
+<p><strong>10、运行Server.java，再运行Client.java</strong></p>
+<p>​          简单性能对比（每万次调用消耗时间比）：</p>
+<table>
+<thead>
+<tr>
+<th>实现</th>
+<th>时间（毫秒）</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTTP接口</td>
+<td>13000</td>
+<td>springboot+json，客户端采用HttpClient</td>
+</tr>
+<tr>
+<td>Google Grpc</td>
+<td>2100</td>
+<td>本demo</td>
+</tr>
+<tr>
+<td>Facebook swift（Thrift）</td>
+<td>1500</td>
+<td>Thrift实现</td>
+</tr>
+</tbody>
+</table>
+<p>转载于 <a href="https://www.cnblogs.com/mzsg/p/5643367.html" target="_blank" rel="noopener">https://www.cnblogs.com/mzsg/p/5643367.html</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/23/Twitter的分布式自增ID算法snowflake/" rel="next" title="Twitter的分布式自增ID算法snowflake">
+                <i class="fa fa-chevron-left"></i> Twitter的分布式自增ID算法snowflake
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Duke Du</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Duke Du</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
