@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="git reset 和 git checkout 即可以用于commit，也可以用于一个文件，而 revert只能用于commit git revert：撤销某次commit的修改，并且自动新建一个commit提交，git log中添加新的revert日志；revert只能作用于commit，不能用于文件假设当前有3个commit，git log如下： 123commit3:  add test3">
+<meta property="og:type" content="article">
+<meta property="og:title" content="git reset、checkout &amp; revert 代码回滚">
+<meta property="og:url" content="http://yoursite.com/2018/03/26/git reset|checkout | revert 代码回滚/index.html">
+<meta property="og:site_name" content="Duke Du的博客">
+<meta property="og:description" content="git reset 和 git checkout 即可以用于commit，也可以用于一个文件，而 revert只能用于commit git revert：撤销某次commit的修改，并且自动新建一个commit提交，git log中添加新的revert日志；revert只能作用于commit，不能用于文件假设当前有3个commit，git log如下： 123commit3:  add test3">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://img.blog.csdn.net/20151216124416870">
+<meta property="og:image" content="http://img.blog.csdn.net/20151216121913991">
+<meta property="og:image" content="http://img.blog.csdn.net/20151216092504782">
+<meta property="og:image" content="http://img.blog.csdn.net/20151216092536993">
+<meta property="og:image" content="http://img.blog.csdn.net/20151216093224720">
+<meta property="og:updated_time" content="2018-03-26T11:40:35.383Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="git reset、checkout &amp; revert 代码回滚">
+<meta name="twitter:description" content="git reset 和 git checkout 即可以用于commit，也可以用于一个文件，而 revert只能用于commit git revert：撤销某次commit的修改，并且自动新建一个commit提交，git log中添加新的revert日志；revert只能作用于commit，不能用于文件假设当前有3个commit，git log如下： 123commit3:  add test3">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20151216124416870">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/26/git reset|checkout | revert 代码回滚/"/>
+
+
+
+
+
+  <title>git reset、checkout & revert 代码回滚 | Duke Du的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Duke Du的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/26/git reset|checkout | revert 代码回滚/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Duke Du">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Duke Du的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">git reset、checkout & revert 代码回滚</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-26T19:26:50+08:00">
+                2018-03-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>git reset 和 git checkout 即可以用于commit，也可以用于一个文件，而 revert只能用于commit</strong></p>
+<h2 id="git-revert："><a href="#git-revert：" class="headerlink" title="git revert："></a><strong>git revert：</strong></h2><p><strong>撤销某次commit的修改，并且自动新建一个commit提交，git log中添加新的revert日志；revert只能作用于commit，不能用于文件</strong><br>假设当前有3个commit，git log如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">commit3:  add test3.c</span><br><span class="line">commit2:  add test2.c</span><br><span class="line">commit1:  add test1.c123</span><br></pre></td></tr></table></figure>
+<p>执行 git revert HEAD~1之后，会提示提交信息，提交后git log如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">commit4:  Reverts “test2.c”</span><br><span class="line">commit3:  test3.c</span><br><span class="line">commit2:  test2.c</span><br><span class="line">commit1:  test1.c1234</span><br></pre></td></tr></table></figure>
+<p>执行完后，test2.c被删除了（因为commit2的修改就是添加 test2.c，所以 revert commit2 就是撤销此次修改，即删除添加的test2.c），revert后运行git status，无任何变化（因为已经自动commit了），其结果就是新的commit中有 test1.c 和 test3.c 两个文件，无 test2.c。</p>
+<h2 id="git-checkout"><a href="#git-checkout" class="headerlink" title="git checkout"></a><strong>git checkout</strong></h2><p><strong>三个作用</strong>： checking out <strong>files</strong>, checking out <strong>commits</strong>, and checking out <strong>branches</strong>.</p>
+<p><strong>checkout commits， 例如:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git checkout hotfix     // 切换到 hotfix 分支</span><br><span class="line">git checkout HEAD~2        // checkout到两个commit之前, 执行 git status 你会发现： HEAD detached at b09ab7c</span><br><span class="line">git checkout api.c      // 相当于撤销某个文件的修改123</span><br></pre></td></tr></table></figure>
+<p>checkout commit 基本上只用于查看之前的某一次commit，千万别直接在 checkout commits 后直接修改，然后 add，然后再commit. 因为这样你在 <strong>这个branch</strong> 上 <strong>新</strong> 修改的东西会消失的。。。（如果想找回，见文章最后 git reflog 命令），相当于你在下图中 Non-existent Branch 上的代码都是临时滴，在分支切换后（切到别的分支，再切回来）就会消失（因为一个分支只有一个HEAD，就是Master指的那个），见图：<br><img src="http://img.blog.csdn.net/20151216124416870" alt="这里写图片描述"></p>
+<p>正确的做法是，在 checkout commit 之后，再马上<strong>新建</strong>一个branch，然后checkout到新建的 branch，再在新建的 branch上add commit就OK了（因为新的 branch 的 HEAD 就会指向你<strong>新</strong>修改的代码了，而不是跟你那个Master抢同一个HEAD指针）。</p>
+<blockquote>
+<p>It’s important to understand that branches are just <strong>pointers</strong> to commits.<br>例如执行 <code>git branch crazy_experiment</code> 如下图：<br><img src="http://img.blog.csdn.net/20151216121913991" alt="branch"><br>To start adding commits to it, you need to select it with <code>git checkout</code>, and then use the standard <code>git add</code> and <code>git commit</code> commands</p>
+<p>Remember that the HEAD is Git’s way of referring to the current snapshot. Internally, the git checkout command simply updates the HEAD to point to either the specified branch or commit. When it points to a branch, Git doesn’t complain, but when you check out a commit, it switches into a “detached HEAD” state.</p>
+</blockquote>
+<p>see link: <a href="https://www.atlassian.com/git/tutorials/using-branches/git-checkout" target="_blank" rel="noopener">https://www.atlassian.com/git/tutorials/using-branches/git-checkout</a></p>
+<h2 id="git-reset："><a href="#git-reset：" class="headerlink" title="git reset："></a><strong>git reset：</strong></h2><p><strong>move the tip of a branch to a different commit; 回退到某次修改，根据 –mixed, –soft, –hard 选择是否提交修改（add &amp; commit） ，git log中会”删除”回退版本的commit之后的日志</strong><br>同样有3个commit，git log如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">commit3:  add test3.c</span><br><span class="line">commit2:  add test2.c</span><br><span class="line">commit1:  add test1.c123</span><br></pre></td></tr></table></figure>
+<p>执行 git reset HEAD~1 （默认–mixed）之后，再次看git log，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">commit2:  test2.c</span><br><span class="line">commit1:  test1.c12</span><br></pre></td></tr></table></figure>
+<p>执行完后，commit3的log信息被删除了；但是test3.c还在本地缓存区，运行git status，可以看见提示test3.c，可以用git add 包含该文件；</p>
+<p>若执行git reset –hard HEAD~1，log为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">commit2:  test2.c</span><br><span class="line">commit1:  test1.c12</span><br></pre></td></tr></table></figure>
+<p>执行完后，test3.c被删除了，查看git status，无任何变化（因为暂存区，工作区全部用指定提交版本的目录树替换掉了）。</p>
+<p>例如，执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git checkout hotfix     // 切换到 hotfix 分支</span><br><span class="line">git reset HEAD~2       // 回退到两个commit之前</span><br><span class="line">git reset HEAD api.c    // 相当于撤销对某个文件的修改123</span><br></pre></td></tr></table></figure>
+<p><img src="http://img.blog.csdn.net/20151216092504782" alt="before reset"></p>
+<p><img src="http://img.blog.csdn.net/20151216092536993" alt="after reset"></p>
+<p><strong>其实reset命令有两种用法：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git reset HEAD~2 foo.py  // 针对某个文件的reset</span><br><span class="line">git reset [--soft | --mixed | --hard | --merge | --keep] [-q] [&lt;commit&gt;]  // 针对某次commit的reset12</span><br></pre></td></tr></table></figure>
+<p>第一种用法是不会重置引用的，即不会修改master文件。只是把某一次提交的文件放到暂存区（已经 git add 过的），而且没有 soft、mixed、hard等选项，因为该文件肯定是被 git add 过了的。</p>
+<p>第二种用法会重置引用，并且根据参数不同决定是否覆盖暂存区和工作目录（但是都会影响提交记录）：</p>
+<p><strong>–hard参数会将工作目录、暂存区(git add)和提交记录(git commit) 用 指定提交版本替换掉</strong></p>
+<p><strong>–soft 参数只执行提交记录的操作， 不进行工作目录和暂存区的覆盖</strong></p>
+<p><strong>–mixed或加参数（默认），覆盖暂存区和提交记录，但不覆盖工目录</strong></p>
+<p><img src="http://img.blog.csdn.net/20151216093224720" alt="这里写图片描述"></p>
+<blockquote>
+<p>These flags are often used with <strong>HEAD</strong> as the parameter. For instance, <code>git reset --mixed HEAD</code> has the affect of unstaging all changes, but leaves them in the working directory. On the other hand, if you want to completely throw away all your uncommitted changes, you would use <code>git reset --hard HEAD</code>. These are two of the <strong>most common uses</strong> of git reset.<br>Be careful when passing a commit other than HEAD to git reset, since this <strong>re-writes</strong> the current branch’s history.</p>
+</blockquote>
+<p><strong>Remember: reset 最好只跟HEAD一块使用，而且是uncommitted changes</strong></p>
+<blockquote>
+<p>Remember: Git reset will alter the existing commit history. For this reason, git revert should be used to undo changes on a public branch, and git reset should be reserved for undoing changes on a private branch.</p>
+<p>You can also think of git revert as a tool for undoing <strong>committed</strong> changes, while <strong>git reset HEAD</strong> is for undoing <strong>uncommitted</strong> changes.</p>
+</blockquote>
+<h1 id="git撤销提交到暂存区的代码，撤销更改过的代码"><a href="#git撤销提交到暂存区的代码，撤销更改过的代码" class="headerlink" title="git撤销提交到暂存区的代码，撤销更改过的代码"></a>git撤销提交到暂存区的代码，撤销更改过的代码</h1><ul>
+<li>git reset HEAD  – <file> 撤销提交到暂存区的代码</file></li>
+<li>撤销掉修改：git checkout – <file></file></li>
+</ul>
+<h2 id="But-But-But…"><a href="#But-But-But…" class="headerlink" title="But But But…"></a><strong>But But But…</strong></h2><p>如果你不听劝，还是将reset用于了其他commit，但执行完<code>git reset</code>后又反悔了，想重新回到rest之前的commit，但是此时git log已经找不到那个之前的commit的信息了怎么办？（因为 <code>git reset</code> 会覆盖提交记录，即 “删除”相应<code>git log</code>中的信息）</p>
+<p>这时我们可以使用 <strong>git reflog</strong> 查看所有的变更记录，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ git reflog</span><br><span class="line">22f8aae HEAD@&#123;0&#125;: pull: Merge made by the &apos;recursive&apos; strategy.</span><br><span class="line">4e79a0b HEAD@&#123;1&#125;: reset: moving to HEAD^</span><br><span class="line">22f8aae HEAD@&#123;2&#125;: reset: moving to 22f8aae1234</span><br></pre></td></tr></table></figure>
+<p>此时恢复某次修改只需要执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git reset --hard 22f8aae1</span><br></pre></td></tr></table></figure>
+<p>尊重原作，参考自：<br><a href="http://www.open-open.com/lib/view/open1397013992747.html" target="_blank" rel="noopener">http://www.open-open.com/lib/view/open1397013992747.html</a></p>
+<p><a href="http://blog.csdn.net/n289950578/article/details/24738427" target="_blank" rel="noopener">http://blog.csdn.net/n289950578/article/details/24738427</a></p>
+<p><a href="https://www.atlassian.com/git/tutorials/resetting-checking-out-and-reverting/commit-level-operations" target="_blank" rel="noopener">https://www.atlassian.com/git/tutorials/resetting-checking-out-and-reverting/commit-level-operations</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/26/grpc-初探/" rel="next" title="grpc 初探">
+                <i class="fa fa-chevron-left"></i> grpc 初探
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Duke Du</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#git-revert："><span class="nav-number">1.</span> <span class="nav-text">git revert：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#git-checkout"><span class="nav-number">2.</span> <span class="nav-text">git checkout</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#git-reset："><span class="nav-number">3.</span> <span class="nav-text">git reset：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#git撤销提交到暂存区的代码，撤销更改过的代码"><span class="nav-number"></span> <span class="nav-text">git撤销提交到暂存区的代码，撤销更改过的代码</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#But-But-But…"><span class="nav-number">1.</span> <span class="nav-text">But But But…</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Duke Du</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
