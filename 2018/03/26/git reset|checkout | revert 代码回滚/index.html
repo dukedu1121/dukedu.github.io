@@ -91,7 +91,7 @@
 <meta property="og:image" content="http://img.blog.csdn.net/20151216092504782">
 <meta property="og:image" content="http://img.blog.csdn.net/20151216092536993">
 <meta property="og:image" content="http://img.blog.csdn.net/20151216093224720">
-<meta property="og:updated_time" content="2018-03-26T11:43:59.134Z">
+<meta property="og:updated_time" content="2018-03-26T11:46:45.513Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="git reset、checkout &amp; revert 代码回滚">
 <meta name="twitter:description" content="git reset 和 git checkout 即可以用于commit，也可以用于一个文件，而 revert只能用于commit git revert：撤销某次commit的修改，并且自动新建一个commit提交，git log中添加新的revert日志；revert只能作用于commit，不能用于文件假设当前有3个commit，git log如下： 123commit3:  add test3">
@@ -351,9 +351,11 @@
 </blockquote>
 <h2 id="git撤销提交到暂存区的代码，撤销更改过的代码"><a href="#git撤销提交到暂存区的代码，撤销更改过的代码" class="headerlink" title="git撤销提交到暂存区的代码，撤销更改过的代码"></a><strong>git撤销提交到暂存区的代码，撤销更改过的代码</strong></h2><ul>
 <li>git reset HEAD  – <file> 撤销提交到暂存区的代码</file></li>
+</ul>
+<ul>
 <li>撤销掉修改：git checkout – <file></file></li>
 </ul>
-<h2 id="But-But-But…"><a href="#But-But-But…" class="headerlink" title="But But But…"></a><strong>But But But…</strong></h2><p>如果你不听劝，还是将reset用于了其他commit，但执行完<code>git reset</code>后又反悔了，想重新回到rest之前的commit，但是此时git log已经找不到那个之前的commit的信息了怎么办？（因为 <code>git reset</code> 会覆盖提交记录，即 “删除”相应<code>git log</code>中的信息）</p>
+<h2 id="But-But-But…"><a href="#But-But-But…" class="headerlink" title="But But But…"></a><strong>But But But…</strong></h2><p><strong>如果你不听劝，还是将reset用于了其他commit，但执行完<code>git reset</code>后又反悔了，想重新回到rest之前的commit，但是此时git log已经找不到那个之前的commit的信息了怎么办？(因为 <code>git reset</code> 会覆盖提交记录，即 “删除”相应<code>git log</code>中的信息)</strong></p>
 <p>这时我们可以使用 <strong>git reflog</strong> 查看所有的变更记录，如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ git reflog</span><br><span class="line">22f8aae HEAD@&#123;0&#125;: pull: Merge made by the &apos;recursive&apos; strategy.</span><br><span class="line">4e79a0b HEAD@&#123;1&#125;: reset: moving to HEAD^</span><br><span class="line">22f8aae HEAD@&#123;2&#125;: reset: moving to 22f8aae1234</span><br></pre></td></tr></table></figure>
 <p>此时恢复某次修改只需要执行：</p>
