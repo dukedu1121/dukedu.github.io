@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="Memcache和Redis区别：  Redis中，并不是所有的数据都一直存储在内存中的，这是和Memcache相比一个最大的区别。 Redis在很多方面具备数据库的特征，或者说就是一个数据库系统，而Memcache只是简单的K/V缓存。 他们的扩展都需要做集群；实现方式：master-slave、Hash。 在100k以上的数据中，Memcache性能要高于Redis。 如果要说内存使用效率，使">
+<meta name="description" content="Memcached介绍 Memecached、memecached和memecache的区别：  其中首字母大写的Memcached，指的是Memcached服务器，就是独立运行Memcached的后台服务器，用于存储数据的“数据库”; 而memcached和memcache指的是Memcached的客户端。其中memcache是独立用php实现的，属于老旧的版本。而memcached是基于原生的">
 <meta property="og:type" content="article">
-<meta property="og:title" content="redis,memcache二者的区别是？（优缺点）">
-<meta property="og:url" content="http://yoursite.com/2018/03/28/redis-memcache二者的区别是？（优缺点）/index.html">
+<meta property="og:title" content="redis,memcached二者的区别是">
+<meta property="og:url" content="http://yoursite.com/2018/03/28/Redis学习笔记——redis&memcached二者的区别/index.html">
 <meta property="og:site_name" content="Duke Du的博客">
-<meta property="og:description" content="Memcache和Redis区别：  Redis中，并不是所有的数据都一直存储在内存中的，这是和Memcache相比一个最大的区别。 Redis在很多方面具备数据库的特征，或者说就是一个数据库系统，而Memcache只是简单的K/V缓存。 他们的扩展都需要做集群；实现方式：master-slave、Hash。 在100k以上的数据中，Memcache性能要高于Redis。 如果要说内存使用效率，使">
+<meta property="og:description" content="Memcached介绍 Memecached、memecached和memecache的区别：  其中首字母大写的Memcached，指的是Memcached服务器，就是独立运行Memcached的后台服务器，用于存储数据的“数据库”; 而memcached和memcache指的是Memcached的客户端。其中memcache是独立用php实现的，属于老旧的版本。而memcached是基于原生的">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-03-28T09:55:33.572Z">
+<meta property="og:updated_time" content="2018-03-28T10:50:18.335Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="redis,memcache二者的区别是？（优缺点）">
-<meta name="twitter:description" content="Memcache和Redis区别：  Redis中，并不是所有的数据都一直存储在内存中的，这是和Memcache相比一个最大的区别。 Redis在很多方面具备数据库的特征，或者说就是一个数据库系统，而Memcache只是简单的K/V缓存。 他们的扩展都需要做集群；实现方式：master-slave、Hash。 在100k以上的数据中，Memcache性能要高于Redis。 如果要说内存使用效率，使">
+<meta name="twitter:title" content="redis,memcached二者的区别是">
+<meta name="twitter:description" content="Memcached介绍 Memecached、memecached和memecache的区别：  其中首字母大写的Memcached，指的是Memcached服务器，就是独立运行Memcached的后台服务器，用于存储数据的“数据库”; 而memcached和memcache指的是Memcached的客户端。其中memcache是独立用php实现的，属于老旧的版本。而memcached是基于原生的">
 
 
 
@@ -119,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/03/28/redis-memcache二者的区别是？（优缺点）/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/03/28/Redis学习笔记——redis&memcached二者的区别/"/>
 
 
 
 
 
-  <title>redis,memcache二者的区别是？（优缺点） | Duke Du的博客</title>
+  <title>redis,memcached二者的区别是 | Duke Du的博客</title>
   
 
 
@@ -232,7 +232,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/28/redis-memcache二者的区别是？（优缺点）/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/28/Redis学习笔记——redis&memcached二者的区别/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Duke Du">
@@ -249,7 +249,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">redis,memcache二者的区别是？（优缺点）</h1>
+          <h1 class="post-title" itemprop="name headline">redis,memcached二者的区别是</h1>
         
 
         <div class="post-meta">
@@ -299,29 +299,35 @@
       
 
       
-        <p><strong>Memcache和Redis区别：</strong></p>
+        <p><strong>Memcached介绍</strong></p>
+<p>Memecached、memecached和memecache的区别：</p>
 <ol>
+<li>其中首字母大写的Memcached，指的是Memcached服务器，就是独立运行Memcached的后台服务器，用于存储数据的“数据库”;</li>
+<li>而memcached和memcache指的是Memcached的客户端。其中memcache是独立用php实现的，属于老旧的版本。而memcached是基于原生的c的libmemcached的扩展，更加完善，性能更高一些。</li>
+</ol>
+<p><strong>Memcached和Redis共同点和区别：</strong></p>
+<ul>
+<li>共同点<ul>
+<li>Memcache，Redis 都是内存数据库</li>
+</ul>
+</li>
+<li>区别<ul>
 <li>Redis中，并不是所有的数据都一直存储在内存中的，这是和Memcache相比一个最大的区别。</li>
 <li>Redis在很多方面具备数据库的特征，或者说就是一个数据库系统，而Memcache只是简单的K/V缓存。</li>
 <li>他们的扩展都需要做集群；实现方式：master-slave、Hash。</li>
 <li>在100k以上的数据中，Memcache性能要高于Redis。</li>
 <li>如果要说内存使用效率，使用简单的key-value存储的话，Memcached的内存利用率更高，而如果Redis采用hash结构来做key-value存储，由于其组合式的压缩，其内存利用率会高于Memcache。当然，这和你的应用场景和数据特性有关。</li>
-<li>如果你对数据持久化和数据同步有所要求，那么推荐你选择Redis，因为这两个特性Memcache都不具备。即使你只是希望在升级或者重启系统后缓存数据不会丢失，选择Redis也是明智的。</li>
-<li>Redis和Memcache在写入性能上面差别不大，读取性能上面尤其是批量读取性能上面Memcache更强</li>
-</ol>
-<p>共同点:Memcache，Redis 都是内存数据库</p>
-<p>区别:</p>
-<p> Memcache</p>
-<p>   Memcache可以利用多核优势，单实例吞吐量极高，可以达到几十万QPS,适用于最大程度扛量</p>
-<p>​    只支持简单的key/value数据结构，不像Redis可以支持丰富的数据类型。</p>
-<p>​    无法进行持久化，数据不能备份，只能用于缓存使用，且重启后数据全部丢失</p>
-<p> Redis</p>
-<p>​    支持多种数据结构，如string,list,dict,set,zset,hyperloglog</p>
-<p>​    单线程请求，所有命令串行执行，并发情况下不需要考虑数据一致性问题。</p>
-<p>​    支持持久化操作，可以进行aof及rdb数据持久化到磁盘，从而进行数据备份或数据恢复等操作，较好的防止数据丢失的手段。</p>
-<p>​    支持通过Replication进行数据复制，通过master-slave机制，可以实时进行数据的同步复制，支持多级复制和增量复制.</p>
-<p>​    支持pub/sub消息订阅机制，可以用来进行消息订阅与通知。</p>
-<p>​    支持简单的事务需求，但业界使用场景很少，并不成熟</p>
+<li>如果你对数据持久化和数据同步有所要求，那么推荐你选择Redis，因为这两个特性Memcache都不具备。redis通过master-slave机制，可以实时进行数据的同步复制，支持多级复制和增量复制（快照、AOF）：依赖快照进行持久化，aof增强了可靠性的同时，对性能有所影响。即使你只是希望在升级或者重启系统后缓存数据不会丢失，选择Redis也是明智的。</li>
+<li>Redis和Memcache在写入性能上面差别不大，读取性能上面尤其是批量读取性能上面Memcache更强。</li>
+<li>Memcache可以利用多核优势，单实例吞吐量极高，可以达到几十万QPS,适用于最大程度扛量</li>
+<li>数据一致性（事务支持）：<ul>
+<li>Memcache 在并发场景下，用cas保证一致性；</li>
+<li>redis事务支持比较弱，只能保证事务中的每个操作连续执行， redis单线程请求，所有命令串行执行，并发情况下不需要考虑数据一致性问题</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 
       
     </div>
