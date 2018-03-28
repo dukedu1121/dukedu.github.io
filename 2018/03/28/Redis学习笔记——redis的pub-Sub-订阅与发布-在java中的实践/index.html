@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="1.什么是pub/subPub/Sub功能（means Publish, Subscribe）即发布及订阅功能。基于事件的系统中，Pub/Sub是目前广泛使用的通信模型，它采用事件作为基本的通信机制，提供大规模系统所要求的松散耦合的交互模式：订阅者(如客户端)以事件订阅的方式表达出它有兴趣接收的一个事件或一类事件；发布者(如服务器)可将订阅者感兴趣的事件随时通知相关订阅者。熟悉设计模式的朋友应该了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis学习笔记——redis的pub&#x2F;Sub(订阅与发布)在java中的实践">
+<meta property="og:url" content="http://yoursite.com/2018/03/28/Redis学习笔记——redis的pub-Sub-订阅与发布-在java中的实践/index.html">
+<meta property="og:site_name" content="Duke Du的博客">
+<meta property="og:description" content="1.什么是pub/subPub/Sub功能（means Publish, Subscribe）即发布及订阅功能。基于事件的系统中，Pub/Sub是目前广泛使用的通信模型，它采用事件作为基本的通信机制，提供大规模系统所要求的松散耦合的交互模式：订阅者(如客户端)以事件订阅的方式表达出它有兴趣接收的一个事件或一类事件；发布者(如服务器)可将订阅者感兴趣的事件随时通知相关订阅者。熟悉设计模式的朋友应该了">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-28T09:54:42.975Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis学习笔记——redis的pub&#x2F;Sub(订阅与发布)在java中的实践">
+<meta name="twitter:description" content="1.什么是pub/subPub/Sub功能（means Publish, Subscribe）即发布及订阅功能。基于事件的系统中，Pub/Sub是目前广泛使用的通信模型，它采用事件作为基本的通信机制，提供大规模系统所要求的松散耦合的交互模式：订阅者(如客户端)以事件订阅的方式表达出它有兴趣接收的一个事件或一类事件；发布者(如服务器)可将订阅者感兴趣的事件随时通知相关订阅者。熟悉设计模式的朋友应该了">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/28/Redis学习笔记——redis的pub-Sub-订阅与发布-在java中的实践/"/>
+
+
+
+
+
+  <title>Redis学习笔记——redis的pub/Sub(订阅与发布)在java中的实践 | Duke Du的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Duke Du的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/28/Redis学习笔记——redis的pub-Sub-订阅与发布-在java中的实践/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Duke Du">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Duke Du的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis学习笔记——redis的pub/Sub(订阅与发布)在java中的实践</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-28T17:52:07+08:00">
+                2018-03-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="1-什么是pub-sub"><a href="#1-什么是pub-sub" class="headerlink" title="1.什么是pub/sub"></a>1.什么是pub/sub</h4><p>Pub/Sub功能（means Publish, Subscribe）即发布及订阅功能。基于事件的系统中，Pub/Sub是目前广泛使用的通信模型，它采用事件作为基本的通信机制，提供大规模系统所要求的松散耦合的交互模式：订阅者(如客户端)以事件订阅的方式表达出它有兴趣接收的一个事件或一类事件；发布者(如服务器)可将订阅者感兴趣的事件随时通知相关订阅者。熟悉设计模式的朋友应该了解这与23种设计模式中的观察者模式极为相似。<br>同样,Redis的pub/sub是一种消息通信模式，主要的目的是解除消息发布者和消息订阅者之间的耦合,Redis作为一个pub/sub的server,在订阅者和发布者之间起到了消息路由的功能。</p>
+<h4 id="2-Redis-pub-sub的实现"><a href="#2-Redis-pub-sub的实现" class="headerlink" title="2.Redis pub/sub的实现"></a>2.Redis pub/sub的实现</h4><p>Redis通过publish和subscribe命令实现订阅和发布的功能。订阅者可以通过subscribe向redis server订阅自己感兴趣的消息类型。redis将信息类型称为通道(channel)。当发布者通过publish命令向redis server发送特定类型的信息时，订阅该消息类型的全部订阅者都会收到此消息。</p>
+<p>客户端1订阅CCTV1:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; subscribe CCTV1</span><br><span class="line">Reading messages... (press Ctrl-C to quit)</span><br><span class="line">1) &quot;subscribe&quot;</span><br><span class="line">2) &quot;CCTV1&quot;</span><br><span class="line">3) (integer) 1</span><br><span class="line">123456</span><br></pre></td></tr></table></figure>
+<p>客户端2订阅CCTV1和CCTV2:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; subscribe CCTV1 CCTV2</span><br><span class="line">Reading messages... (press Ctrl-C to quit)</span><br><span class="line">1) &quot;subscribe&quot;</span><br><span class="line">2) &quot;CCTV1&quot;</span><br><span class="line">3) (integer) 1</span><br><span class="line">1) &quot;subscribe&quot;</span><br><span class="line">2) &quot;CCTV2&quot;</span><br><span class="line">3) (integer) 2</span><br><span class="line"></span><br><span class="line">12345678910</span><br></pre></td></tr></table></figure>
+<p>此时这两个客户端分别监听这指定的频道。现在另一个客户端向服务器推送了关于这两个频道的信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; publish CCTV1 &quot;cctv1 is good&quot;</span><br><span class="line">(integer) 2</span><br><span class="line">//返回2表示两个客户端接收了次消息。被接收到消息的客户端如下所示。</span><br><span class="line">1) &quot;message&quot;</span><br><span class="line">2) &quot;CCTV1&quot;</span><br><span class="line">3) &quot;cctv1 is good&quot;</span><br><span class="line">----</span><br><span class="line">1) &quot;message&quot;</span><br><span class="line">2) &quot;CCTV1&quot;</span><br><span class="line">3) &quot;cctv1 is good&quot;</span><br><span class="line">1234567891011</span><br></pre></td></tr></table></figure>
+<p>如上的订阅/发布也称订阅发布到频道(使用publish与subscribe命令)，此外还有订阅发布到模式(使用psubscribe来订阅一个模式)</p>
+<p>订阅CCTV的全部频道</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; psubscribe CCTV*</span><br><span class="line">Reading messages... (press Ctrl-C to quit)</span><br><span class="line">1) &quot;psubscribe&quot;</span><br><span class="line">2) &quot;CCTV*&quot;</span><br><span class="line">3) (integer) 1</span><br><span class="line">123456</span><br></pre></td></tr></table></figure>
+<p>当依然先如上推送一个CCTV1的消息时，该客户端正常接收。</p>
+<p><strong>Pub/Sub在java中的实现:</strong></p>
+<p>导入Redis驱动:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    compile &apos;redis.clients:jedis:2.4.2&apos;</span><br><span class="line">&#125;123</span><br></pre></td></tr></table></figure>
+<p>Redis驱动包提供了一个抽象类:JedisPubSub…继承这个类就完成了对客户端对订阅的监听。示例代码:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">public class TestPubSub extends JedisPubSub &#123;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onMessage(String channel, String message) &#123;</span><br><span class="line">        // TODO Auto-generated method stub</span><br><span class="line">        System.out.println(channel + &quot;,&quot; + message);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onPMessage(String pattern, String channel, String message) &#123;</span><br><span class="line">        // TODO Auto-generated method stub</span><br><span class="line">        System.out.println(pattern + &quot;,&quot; + channel + &quot;,&quot; + message);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onSubscribe(String channel, int subscribedChannels) &#123;</span><br><span class="line">        // TODO Auto-generated method stub</span><br><span class="line">        System.out.println(&quot;onSubscribe: channel[&quot; + channel + &quot;],&quot; + &quot;subscribedChannels[&quot; + subscribedChannels + &quot;]&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onUnsubscribe(String channel, int subscribedChannels) &#123;</span><br><span class="line">        // TODO Auto-generated method stub</span><br><span class="line">        System.out.println(</span><br><span class="line">                &quot;onUnsubscribe: channel[&quot; + channel + &quot;], &quot; + &quot;subscribedChannels[&quot; + subscribedChannels + &quot;]&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onPUnsubscribe(String pattern, int subscribedChannels) &#123;</span><br><span class="line">        // TODO Auto-generated method stub</span><br><span class="line">        System.out.println(&quot;onPUnsubscribe: pattern[&quot; + pattern + &quot;],&quot; +</span><br><span class="line"></span><br><span class="line">                &quot;subscribedChannels[&quot; + subscribedChannels + &quot;]&quot;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void onPSubscribe(String pattern, int subscribedChannels) &#123;</span><br><span class="line">        System.out.println(&quot;onPSubscribe: pattern[&quot; + pattern + &quot;], &quot; +</span><br><span class="line"></span><br><span class="line">                &quot;subscribedChannels[&quot; + subscribedChannels + &quot;]&quot;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">12345678910111213141516171819202122232425262728293031323334353637383940414243444546</span><br></pre></td></tr></table></figure>
+<p>如上所示,抽象类中存在六个方法。分别表示</p>
+<blockquote>
+<ul>
+<li>监听到订阅模式接受到消息时的回调 (onPMessage)</li>
+<li>监听到订阅频道接受到消息时的回调 (onMessage )</li>
+<li>订阅频道时的回调( onSubscribe )</li>
+<li>取消订阅频道时的回调( onUnsubscribe )</li>
+<li>订阅频道模式时的回调 ( onPSubscribe )</li>
+<li>取消订阅模式时的回调( onPUnsubscribe )</li>
+</ul>
+</blockquote>
+<p>运行我们刚刚编写的类:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">@Test</span><br><span class="line">    public void pubsubjava() &#123;</span><br><span class="line">        // TODO Auto-generated method stub</span><br><span class="line">        Jedis jr = null;</span><br><span class="line">        try &#123;       </span><br><span class="line">        jr = new Jedis(&quot;127.0.0.1&quot;, 6379, 0);// redis服务地址和端口号</span><br><span class="line">            jr.auth(&quot;wx950709&quot;);</span><br><span class="line">            TestPubSub sp = new TestPubSub();</span><br><span class="line">            // jr客户端配置监听两个channel</span><br><span class="line">            sp.subscribe(jr.getClient(), &quot;news.share&quot;, &quot;news.blog&quot;);</span><br><span class="line">        &#125; catch (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; finally&#123;</span><br><span class="line">            if(jr!=null)&#123;</span><br><span class="line">                jr.disconnect();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;123456789101112131415161718</span><br></pre></td></tr></table></figure>
+<p>从代码中我们不难看出，我们声明的一个redis链接在设置监听后就可以执行一些操作，例如发布消息，订阅消息等。。。<br>当运行上述代码后会在控制台输出:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">onSubscribe: channel[news.share],subscribedChannels[1]</span><br><span class="line">onSubscribe: channel[news.blog],subscribedChannels[2]</span><br><span class="line">//onSubscribe方法成功运行123</span><br></pre></td></tr></table></figure>
+<p>此时当在有客户端向new.share或者new.blog通道publish消息时，onMessage方法即可被相应。(jedis.publish(channel, message))。</p>
+<p><strong>Pub/Sub在Spring中的实践</strong><br>导入依赖jar</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;</span><br><span class="line">    compile &apos;org.springframework.data:spring-data-redis:1.7.2.RELEASE&apos;</span><br><span class="line">    compile &apos;redis.clients:jedis:2.4.2&apos;</span><br><span class="line">&#125;1234</span><br></pre></td></tr></table></figure>
+<p>Spring配置redis的链接:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">@Configuration</span><br><span class="line">public class AppConfig &#123;</span><br><span class="line">    @Bean</span><br><span class="line">    JedisConnectionFactory jedisConnectionFactory() &#123;</span><br><span class="line">        JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory();</span><br><span class="line">        jedisConnectionFactory.setPassword(&quot;xxxx&quot;);</span><br><span class="line">        return jedisConnectionFactory;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    RedisTemplate&lt;String, Object&gt; redisTemplate() &#123;</span><br><span class="line">        final RedisTemplate&lt;String, Object&gt; template = new RedisTemplate&lt;String, Object&gt;();</span><br><span class="line">        template.setConnectionFactory(jedisConnectionFactory());</span><br><span class="line">        template.setDefaultSerializer(new StringRedisSerializer());</span><br><span class="line">        return template;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    MessageListenerAdapter messageListener() &#123;</span><br><span class="line">        return new MessageListenerAdapter(new RedisMessageListener());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    RedisMessageListenerContainer redisContainer() &#123;</span><br><span class="line">        final RedisMessageListenerContainer container = new RedisMessageListenerContainer();</span><br><span class="line"></span><br><span class="line">        container.setConnectionFactory(jedisConnectionFactory());</span><br><span class="line">        container.addMessageListener(messageListener(), topic());</span><br><span class="line">        return container;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    RedisPublisherImpl redisPublisher() &#123;</span><br><span class="line">        return new RedisPublisherImpl(redisTemplate(), topic());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Bean</span><br><span class="line">    ChannelTopic topic() &#123;</span><br><span class="line">        return new ChannelTopic( &quot;pubsub:queue&quot; );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">12345678910111213141516171819202122232425262728293031323334353637383940414243</span><br></pre></td></tr></table></figure>
+<p>如上的配置即配置了对Redis的链接。在RedisTemplate中没有设置ip端口等信息则全部为默认的。在配置类中的将ChannelTopic加入IOC容器。则在Spring启动时会在一个RedisTemplate(一个对Redis的链接)中设置的一个channel，即pubsub:queue。<br>在上述配置中，RedisMessageListener是我们生成的，这个类即为核心监听类，RedisTemplate接受到数据如何处理就是在该类中处理的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public class RedisMessageListener implements MessageListener &#123;</span><br><span class="line">        @Override</span><br><span class="line">        public void onMessage( final Message message, final byte[] pattern ) &#123;</span><br><span class="line">            System.out.println(&quot;Message received: &quot; + message.toString() );</span><br><span class="line">        &#125;</span><br><span class="line">&#125;123456</span><br></pre></td></tr></table></figure>
+<p>现在我们在获取RedisTemplate,并给pubsub:queue这个channel publish数据。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class PubSubMain &#123;</span><br><span class="line"></span><br><span class="line">    RedisTemplate&lt;String,Object&gt; redisTemplate;</span><br><span class="line"></span><br><span class="line">    public  void execute() &#123;</span><br><span class="line">       String channel = &quot;pubsub:queue&quot;;</span><br><span class="line">      redisTemplate.convertAndSend(channel, &quot;from testData&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        ApplicationContext applicationContext   = new AnnotationConfigApplicationContext(AppConfig.class);</span><br><span class="line">        PubSubMain pubSubMain = new PubSubMain();</span><br><span class="line">        pubSubMain.redisTemplate = (RedisTemplate&lt;String, Object&gt;) applicationContext.getBean(&quot;redisTemplate&quot;);</span><br><span class="line">        pubSubMain.execute();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;123456789101112131415</span><br></pre></td></tr></table></figure>
+<p>此时运行main 方法:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Message received: from app 12</span><br><span class="line">//表明接受成功，当在命令行中启动一个客户端并publish时依然可以在客户端打印出message</span><br></pre></td></tr></table></figure>
+<p>转载于：<a href="https://blog.csdn.net/canot/article/details/51938955" target="_blank" rel="noopener">https://blog.csdn.net/canot/article/details/51938955</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/27/MAC下的Intellij-IDEA常用快捷键/" rel="next" title="MAC下的Intellij IDEA常用快捷键">
+                <i class="fa fa-chevron-left"></i> MAC下的Intellij IDEA常用快捷键
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/28/redis-memcache二者的区别是？（优缺点）/" rel="prev" title="redis,memcache二者的区别是？（优缺点）">
+                redis,memcache二者的区别是？（优缺点） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Duke Du</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-什么是pub-sub"><span class="nav-number">1.</span> <span class="nav-text">1.什么是pub/sub</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Redis-pub-sub的实现"><span class="nav-number">2.</span> <span class="nav-text">2.Redis pub/sub的实现</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Duke Du</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

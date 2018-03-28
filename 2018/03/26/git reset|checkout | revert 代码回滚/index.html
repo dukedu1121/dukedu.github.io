@@ -91,7 +91,7 @@
 <meta property="og:image" content="http://img.blog.csdn.net/20151216092504782">
 <meta property="og:image" content="http://img.blog.csdn.net/20151216092536993">
 <meta property="og:image" content="http://img.blog.csdn.net/20151216093224720">
-<meta property="og:updated_time" content="2018-03-26T11:48:45.342Z">
+<meta property="og:updated_time" content="2018-03-27T10:14:48.763Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="git reset、checkout &amp; revert 代码回滚">
 <meta name="twitter:description" content="git reset 和 git checkout 即可以用于commit，也可以用于一个文件，而 revert只能用于commit git revert：撤销某次commit的修改，并且自动新建一个commit提交，git log中添加新的revert日志；revert只能作用于commit，不能用于文件假设当前有3个commit，git log如下： 123commit3:  add test3">
@@ -350,10 +350,9 @@
 <p>You can also think of git revert as a tool for undoing <strong>committed</strong> changes, while <strong>git reset HEAD</strong> is for undoing <strong>uncommitted</strong> changes.</p>
 </blockquote>
 <h2 id="git撤销提交到暂存区的代码，撤销更改过的代码"><a href="#git撤销提交到暂存区的代码，撤销更改过的代码" class="headerlink" title="git撤销提交到暂存区的代码，撤销更改过的代码"></a><strong>git撤销提交到暂存区的代码，撤销更改过的代码</strong></h2><ul>
-<li><p>git reset HEAD  – <file> 撤销提交到暂存区的代码</file></p>
-</li>
-<li><p>撤销掉修改：git checkout – <file></file></p>
-</li>
+<li>git reset HEAD  – file 撤销提交到暂存区的代码</li>
+<li>撤销掉修改：git checkout – filepath</li>
+<li>还原文件到某个版本  git checkout HEAD filepath</li>
 </ul>
 <h2 id="But-But-But…"><a href="#But-But-But…" class="headerlink" title="But But But…"></a><strong>But But But…</strong></h2><p><strong>如果你不听劝，还是将reset用于了其他commit，但执行完<code>git reset</code>后又反悔了，想重新回到rest之前的commit，但是此时git log已经找不到那个之前的commit的信息了怎么办？(因为 <code>git reset</code> 会覆盖提交记录，即 “删除”相应<code>git log</code>中的信息)</strong></p>
 <p>这时我们可以使用 <strong>git reflog</strong> 查看所有的变更记录，如下：</p>
@@ -476,7 +475,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
