@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、概述 ​      Redis的强大性能很大程度上都是因为所有数据都是存储在内存中的，然而当Redis重启后，所有存储在内存中的数据将会丢失，在很多情况下是无法容忍这样的事情的。所以，我们需要将内存中的数据持久化！典型的需要持久化数据的场景如下：  将Redis作为数据库使用； 将Redis作为缓存服务器使用，但是缓存miss后会对性能造成很大影响，所有缓存同时失效时会造成服务雪崩，无法响应。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis学习笔记——数据持久化">
+<meta property="og:url" content="http://yoursite.com/2018/03/28/Redis学习笔记——数据持久化/index.html">
+<meta property="og:site_name" content="Duke Du的博客">
+<meta property="og:description" content="一、概述 ​      Redis的强大性能很大程度上都是因为所有数据都是存储在内存中的，然而当Redis重启后，所有存储在内存中的数据将会丢失，在很多情况下是无法容忍这样的事情的。所以，我们需要将内存中的数据持久化！典型的需要持久化数据的场景如下：  将Redis作为数据库使用； 将Redis作为缓存服务器使用，但是缓存miss后会对性能造成很大影响，所有缓存同时失效时会造成服务雪崩，无法响应。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://images2015.cnblogs.com/blog/249993/201706/249993-20170622135034991-2122562186.png">
+<meta property="og:image" content="https://images2015.cnblogs.com/blog/249993/201706/249993-20170622145928570-677307300.png">
+<meta property="og:updated_time" content="2018-03-28T10:01:12.906Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Redis学习笔记——数据持久化">
+<meta name="twitter:description" content="一、概述 ​      Redis的强大性能很大程度上都是因为所有数据都是存储在内存中的，然而当Redis重启后，所有存储在内存中的数据将会丢失，在很多情况下是无法容忍这样的事情的。所以，我们需要将内存中的数据持久化！典型的需要持久化数据的场景如下：  将Redis作为数据库使用； 将Redis作为缓存服务器使用，但是缓存miss后会对性能造成很大影响，所有缓存同时失效时会造成服务雪崩，无法响应。">
+<meta name="twitter:image" content="https://images2015.cnblogs.com/blog/249993/201706/249993-20170622135034991-2122562186.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/28/Redis学习笔记——数据持久化/"/>
+
+
+
+
+
+  <title>Redis学习笔记——数据持久化 | Duke Du的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Duke Du的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/28/Redis学习笔记——数据持久化/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Duke Du">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Duke Du的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Redis学习笔记——数据持久化</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-28T18:00:43+08:00">
+                2018-03-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>一、概述</strong></p>
+<p>​      Redis的强大性能很大程度上都是因为所有数据都是存储在内存中的，然而当Redis重启后，所有存储在内存中的数据将会丢失，在很多情况下是无法容忍这样的事情的。所以，我们需要将内存中的数据持久化！典型的需要持久化数据的场景如下：</p>
+<ul>
+<li>将Redis作为数据库使用；</li>
+<li>将Redis作为缓存服务器使用，但是缓存miss后会对性能造成很大影响，所有缓存同时失效时会造成服务雪崩，无法响应。</li>
+</ul>
+<p>本文介绍Redis所支持的两种数据持久化方式。</p>
+<p><strong>二、Redis数据持久化</strong></p>
+<p>​      Redis支持两种数据持久化方式：RDB方式和AOF方式。前者会根据配置的规则定时将内存中的数据持久化到硬盘上，后者则是在每次执行写命令之后将命令记录下来。两种持久化方式可以单独使用，但是通常会将两者结合使用。</p>
+<p><strong>1、RDB方式</strong></p>
+<p>​     RDB方式的持久化是通过快照的方式完成的。当符合某种规则时，会将内存中的数据全量生成一份副本存储到硬盘上，这个过程称作”快照”，Redis会在以下几种情况下对数据进行快照：</p>
+<ul>
+<li>根据配置规则进行自动快照；</li>
+<li>用户执行SAVE, BGSAVE命令；</li>
+<li>执行FLUSHALL命令；</li>
+<li>执行复制（replication）时。</li>
+</ul>
+<p><strong>执行快照的场景</strong></p>
+<p><strong>（1）根据配置自动快照</strong></p>
+<p>​      Redis允许用户自定义快照条件，当满足条件时自动执行快照。缺省情况下，Redis把数据快照存放在磁盘上的二进制文件中，文件名为dump.rdb，此外，我们也可以通过配置文件来修改Redis服务器dump快照的频率，在打开redis.windows.conf文件之后，我们搜索save，可以看到下面的配置信息：</p>
+<p><img src="https://images2015.cnblogs.com/blog/249993/201706/249993-20170622135034991-2122562186.png" alt="img"></p>
+<p>注意最后三行，分别表示：</p>
+<p>在900秒(15分钟)之后，如果至少有1个key发生变化，则dump内存快照；</p>
+<p>在300秒(5分钟)之后，如果至少有10个key发生变化，则dump内存快照；</p>
+<p>在60秒(1分钟)之后，如果至少有10000个key发生变化，则dump内存快照。</p>
+<p>​     每个快照条件独占一行，他们之间是或（||）关系，只要满足任何一个就进行快照。上面配置save后的第一个参数T是时间，单位是秒，第二个参数M是更改的键的个数，含义是：当时间T内被更改的键的个数大于M时，自动进行快照。比如<code>save 900 1</code>的含义是15分钟内(900s)被更改的键的个数大于1时，自动进行快照操作。</p>
+<p><strong>（2）执行SAVE或BGSAVE命令</strong></p>
+<p>除了让Redis自动进行快照外，当我们需要重启，迁移，备份Redis时，我们也可以手动执行SAVE或BGSAVE命令主动进行快照操作。</p>
+<ul>
+<li><strong>SAVE命令：</strong>当执行SAVE命令时，Redis同步进行快照操作，期间会阻塞所有来自客户端的请求，所以放数据库数据较多时，应该避免使用该命令；</li>
+<li><strong>BGSAVE命令：</strong> 从命令名字就能看出来，这个命令与SAVE命令的区别就在于该命令的快照操作是在后台异步进行的，进行快照操作的同时还能处理来自客户端的请求。执行BGSAVE命令后Redis会马上返回OK表示开始进行快照操作，如果想知道快照操作是否已经完成，可以使用LASTSAVE命令返回最近一次成功执行快照的时间，返回结果是一个Unix时间戳。</li>
+</ul>
+<p><strong>（3）执行FLUSHALL命令</strong></p>
+<p>​     当执行FLUSHALL命令时，Redis会清除数据库中的所有数据。需要注意的是：<strong>不论清空数据库的过程是否触发了自动快照的条件，只要自动快照条件不为空，Redis就会执行一次快照操作，当没有定义自动快照条件时，执行FLUSHALL命令不会进行快照操作。</strong></p>
+<p><strong>（4）执行复制</strong></p>
+<p>当设置了主从模式时，Redis会在复制初始化时进行自动快照。</p>
+<p><strong>快照原理</strong></p>
+<p>​      Redis默认会将快照文件存储在Redis当前进程的工作目录的dump.rdb文件中，可以通过配置文件中的dir和dbfilename两个参数分别指定快照文件的存储路径和文件名，默认的存储路径和文件名如下图所示：</p>
+<p><img src="https://images2015.cnblogs.com/blog/249993/201706/249993-20170622145928570-677307300.png" alt="img"></p>
+<p>快照执行的过程如下：</p>
+<p>（1）Redis使用fork函数复制一份当前进程（父进程）的副本（子进程）；<br>（2）父进程继续处理来自客户端的请求，子进程开始将内存中的数据写入硬盘中的临时文件；<br>（3）当子进程写完所有的数据后，用该临时文件替换旧的RDB文件，至此，一次快照操作完成。</p>
+<p>需要注意的是：</p>
+<blockquote>
+<p><strong>在执行fork的时候操作系统（类Unix操作系统）会使用写时复制（copy-on-write）策略，即fork函数发生的一刻，父进程和子进程共享同一块内存数据，当父进程需要修改其中的某片数据（如执行写命令）时，操作系统会将该片数据复制一份以保证子进程不受影响，所以RDB文件存储的是执行fork操作那一刻的内存数据。所以RDB方式理论上是会存在丢数据的情况的(fork之后修改的的那些没有写进RDB文件)。</strong></p>
+</blockquote>
+<p>​      通过上述的介绍可以知道，快照进行时是不会修改RDB文件的，只有完成的时候才会用临时文件替换老的RDB文件，所以就保证任何时候RDB文件的都是完整的。这使得我们可以通过定时备份RDB文件来实现Redis数据的备份。RDB文件是经过压缩处理的二进制文件，所以占用的空间会小于内存中数据的大小，更有利于传输。</p>
+<p>​      Redis启动时会自动读取RDB快照文件，将数据从硬盘载入到内存，根据数量的不同，这个过程持续的时间也不尽相同，通常来讲，一个记录1000万个字符串类型键，大小为1GB的快照文件载入到内存需要20-30秒的时间。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/28/redis-memcache二者的区别是？（优缺点）/" rel="next" title="redis,memcache二者的区别是？（优缺点）">
+                <i class="fa fa-chevron-left"></i> redis,memcache二者的区别是？（优缺点）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Duke Du</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">12</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Duke Du</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
