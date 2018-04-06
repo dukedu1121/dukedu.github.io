@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一：spring-session 介绍1.简介session一直都是我们做集群时需要解决的一个难题，过去我们可以从serlvet容器上解决，比如开源servlet容器-tomcat提供的tomcat-redis-session-manager、memcached-session-manager。或者通过nginx之类的负载均衡做ip_hash，路由到特定的服务器上..但是这两种办法都存在弊端。 1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="spring-session简介、使用及实现原理">
+<meta property="og:url" content="http://yoursite.com/2018/04/06/spring-session简介、使用及实现原理/index.html">
+<meta property="og:site_name" content="Duke Du的博客">
+<meta property="og:description" content="一：spring-session 介绍1.简介session一直都是我们做集群时需要解决的一个难题，过去我们可以从serlvet容器上解决，比如开源servlet容器-tomcat提供的tomcat-redis-session-manager、memcached-session-manager。或者通过nginx之类的负载均衡做ip_hash，路由到特定的服务器上..但是这两种办法都存在弊端。 1">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://img-blog.csdn.net/20170316154920745?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd29qaWFvbGluYWFh/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:updated_time" content="2018-04-06T07:00:29.186Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="spring-session简介、使用及实现原理">
+<meta name="twitter:description" content="一：spring-session 介绍1.简介session一直都是我们做集群时需要解决的一个难题，过去我们可以从serlvet容器上解决，比如开源servlet容器-tomcat提供的tomcat-redis-session-manager、memcached-session-manager。或者通过nginx之类的负载均衡做ip_hash，路由到特定的服务器上..但是这两种办法都存在弊端。 1">
+<meta name="twitter:image" content="https://img-blog.csdn.net/20170316154920745?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd29qaWFvbGluYWFh/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/06/spring-session简介、使用及实现原理/"/>
+
+
+
+
+
+  <title>spring-session简介、使用及实现原理 | Duke Du的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Duke Du的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/06/spring-session简介、使用及实现原理/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Duke Du">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Duke Du的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">spring-session简介、使用及实现原理</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-06T14:18:57+08:00">
+                2018-04-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>一：spring-session 介绍</strong><br><strong>1.简介</strong><br>session一直都是我们做集群时需要解决的一个难题，过去我们可以从serlvet容器上解决，比如开源servlet容器-tomcat提供的tomcat-redis-session-manager、memcached-session-manager。<br>或者通过nginx之类的负载均衡做ip_hash，路由到特定的服务器上..<br>但是这两种办法都存在弊端。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spring-session是spring旗下的一个项目，把servlet容器实现的httpSession替换为spring-session，专注于解决 session管理问题。可简单快速且无缝的集成到我们的应用中。</span><br></pre></td></tr></table></figure>
+<p><strong>2.支持功能</strong><br>1）轻易把session存储到第三方存储容器，框架提供了redis、jvm的map、mongo、gemfire、hazelcast、jdbc等多种存储session的容器的方式。<br>2）同一个浏览器同一个网站，支持多个session问题。<br>3）Restful API，不依赖于cookie。可通过header来传递jessionID<br>4）WebSocket和spring-session结合，同步生命周期管理。</p>
+<p><strong>3.集成方式</strong><br>集成方式非常简单，直接看官网的samples and guide 。<a href="http://docs.spring.io/spring-session/docs/1.3.0.RELEASE/reference/html5/" target="_blank" rel="noopener">http://docs.spring.io/spring-session/docs/1.3.0.RELEASE/reference/html5/</a><br>主要分为以下几个集成步骤：<br>1）引入依赖jar包<br>2）注解方式或者 xml方式配置 特定存储容器的存储方式，如redis的xml配置方式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;context:annotation-config/&gt;    </span><br><span class="line">/**  初始化一切spring-session准备，且把springSessionFilter放入IOC          **/</span><br><span class="line">&lt;beanclass=&quot;org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration&quot;/&gt;   </span><br><span class="line">/** 这是存储容器的链接池 **/ </span><br><span class="line">&lt;beanclass=&quot;org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory&quot;/&gt;12345</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">   3）xml方式配置 web.xml ，配置 springSessionFilter到 filter chain中</span><br><span class="line">12</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&lt;filter&gt;</span><br><span class="line">     &lt;filter-name&gt;springSessionRepositoryFilter&lt;/filter-name&gt;</span><br><span class="line">     &lt;filter-class&gt;org.springframework.web.filter.DelegatingFilterProxy&lt;/filter-class&gt; </span><br><span class="line">&lt;/filter&gt; </span><br><span class="line">&lt;filter-mapping&gt;</span><br><span class="line">     &lt;filter-name&gt;springSessionRepositoryFilter&lt;/filter-name&gt;</span><br><span class="line">     &lt;url-pattern&gt;/*&lt;/url-pattern&gt;</span><br><span class="line">     &lt;dispatcher&gt;REQUEST&lt;/dispatcher&gt;&lt;dispatcher&gt;ERROR&lt;/dispatcher&gt; </span><br><span class="line">&lt;/filter-mapping&gt;123456789</span><br></pre></td></tr></table></figure>
+<p><strong>二：spring-session框架内部剖析</strong><br><strong>1.框架高层抽象结构图</strong><br><img src="https://img-blog.csdn.net/20170316154920745?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvd29qaWFvbGluYWFh/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p><strong>2.spring-session重写servlet request 及 redis实现存储相关问题</strong></p>
+<blockquote>
+<p>spring-session无缝替换应用服务器的request大概原理是：<br>1.自定义个Filter，实现doFilter方法<br>2.继承 HttpServletRequestWrapper 、HttpServletResponseWrapper 类，重写getSession等相关方法(在这些方法里调用相关的 session存储容器操作类)。<br>3.在 第一步的doFilter中，new 第二步 自定义的request和response的类。并把它们分别传递 到 过滤器链<br>4.把该filter配置到 过滤器链的第一个位置上</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 这个类是spring-session的1.30源码，也是实现上面第一到第三步的关键类 **/</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SessionRepositoryFilter</span>&lt;<span class="title">S</span> <span class="keyword">extends</span> <span class="title">ExpiringSession</span>&gt;</span></span><br><span class="line"><span class="class">        <span class="keyword">extends</span> <span class="title">OncePerRequestFilter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">   <span class="comment">/**  session存储容器接口，redis、mongoDB、genfire等数据库都是实现该接口  **/</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> SessionRepository&lt;S&gt; sessionRepository;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> ServletContext servletContext;</span><br><span class="line">   <span class="comment">/** </span></span><br><span class="line"><span class="comment">      sessionID的传递方式接口。目前spring-session自带两个实现类</span></span><br><span class="line"><span class="comment">      1.cookie方式 ：CookieHttpSessionStrategy</span></span><br><span class="line"><span class="comment">      2.http header 方式：HeaderHttpSessionStrategy</span></span><br><span class="line"><span class="comment">      当然，我们也可以自定义其他方式。</span></span><br><span class="line"><span class="comment">    **/</span></span><br><span class="line">    <span class="keyword">private</span> MultiHttpSessionStrategy httpSessionStrategy = <span class="keyword">new</span> CookieHttpSessionStrategy();</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SessionRepositoryFilter</span><span class="params">(SessionRepository&lt;S&gt; sessionRepository)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (sessionRepository == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"sessionRepository cannot be null"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.sessionRepository = sessionRepository;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setHttpSessionStrategy</span><span class="params">(HttpSessionStrategy httpSessionStrategy)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (httpSessionStrategy == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"httpSessionStrategy cannot be null"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/** </span></span><br><span class="line"><span class="comment">        通过前面的spring-session功能介绍，我们知道spring-session可以支持单浏览器多</span></span><br><span class="line"><span class="comment">        session， 就是通过MultiHttpSessionStrategyAdapter来实现的。</span></span><br><span class="line"><span class="comment">        每个浏览器拥有一个sessionID，但是这个sessionID拥有多个别名（根据浏览器的tab）。如：</span></span><br><span class="line"><span class="comment">                别名1 sessionID</span></span><br><span class="line"><span class="comment">                别名2 sessionID</span></span><br><span class="line"><span class="comment">                ...</span></span><br><span class="line"><span class="comment">                而这个别名通过url来传递，这就是单浏览器多session原理了</span></span><br><span class="line"><span class="comment">                **/</span></span><br><span class="line">        <span class="keyword">this</span>.httpSessionStrategy = <span class="keyword">new</span> MultiHttpSessionStrategyAdapter(</span><br><span class="line">                httpSessionStrategy);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setHttpSessionStrategy</span><span class="params">(MultiHttpSessionStrategy httpSessionStrategy)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (httpSessionStrategy == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"httpSessionStrategy cannot be null"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.httpSessionStrategy = httpSessionStrategy;</span><br><span class="line">    &#125;</span><br><span class="line">     <span class="comment">/**</span></span><br><span class="line"><span class="comment">    该方法相当于重写了doFilter，只是spring-session又做了多一层封装。</span></span><br><span class="line"><span class="comment">    在这个方法里创建自定义的 request和response，然后传递到过滤器链filterChain</span></span><br><span class="line"><span class="comment">     **/</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doFilterInternal</span><span class="params">(HttpServletRequest request,</span></span></span><br><span class="line"><span class="function"><span class="params">            HttpServletResponse response, FilterChain filterChain)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> ServletException, IOException </span>&#123;</span><br><span class="line">        request.setAttribute(SESSION_REPOSITORY_ATTR, <span class="keyword">this</span>.sessionRepository);</span><br><span class="line">                <span class="comment">/**</span></span><br><span class="line"><span class="comment">                spring-session重写的ServletRequest。这个类继承了HttpServletRequestWrapper </span></span><br><span class="line"><span class="comment">                **/</span></span><br><span class="line">        SessionRepositoryRequestWrapper wrappedRequest = <span class="keyword">new</span> SessionRepositoryRequestWrapper(</span><br><span class="line">                request, response, <span class="keyword">this</span>.servletContext);</span><br><span class="line">        SessionRepositoryResponseWrapper wrappedResponse = <span class="keyword">new</span> SessionRepositoryResponseWrapper(</span><br><span class="line">                wrappedRequest, response);</span><br><span class="line"></span><br><span class="line">        HttpServletRequest strategyRequest = <span class="keyword">this</span>.httpSessionStrategy</span><br><span class="line">                .wrapRequest(wrappedRequest, wrappedResponse);</span><br><span class="line">        HttpServletResponse strategyResponse = <span class="keyword">this</span>.httpSessionStrategy</span><br><span class="line">                .wrapResponse(wrappedRequest, wrappedResponse);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;  </span><br><span class="line">             <span class="comment">/** </span></span><br><span class="line"><span class="comment">             传递自定义 request和response到链中,想象下如果</span></span><br><span class="line"><span class="comment">             该spring-sessionFilter位于过滤器链的第一个，那么后续的Filter，</span></span><br><span class="line"><span class="comment">             以及到达最后的控制层所获取的 request和response，是不是就是我们自定义的了？</span></span><br><span class="line"><span class="comment">             **/</span></span><br><span class="line">            filterChain.doFilter(strategyRequest, strategyResponse);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">finally</span> &#123;</span><br><span class="line">            wrappedRequest.commitSession();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setServletContext</span><span class="params">(ServletContext servletContext)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.servletContext = servletContext;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    这个就是Servlet response的重写类了</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">SessionRepositoryResponseWrapper</span></span></span><br><span class="line"><span class="class">            <span class="keyword">extends</span> <span class="title">OnCommittedResponseWrapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> SessionRepositoryRequestWrapper request;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        SessionRepositoryResponseWrapper(SessionRepositoryRequestWrapper request,</span><br><span class="line">                HttpServletResponse response) &#123;</span><br><span class="line">            <span class="keyword">super</span>(response);</span><br><span class="line">            <span class="keyword">if</span> (request == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"request cannot be null"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">this</span>.request = request;</span><br><span class="line">        &#125;</span><br><span class="line">         <span class="comment">/** </span></span><br><span class="line"><span class="comment">            这步是持久化session到存储容器，我们可能会在一个控制层里多次调用session的操作方法</span></span><br><span class="line"><span class="comment">            如果我们每次对session的操作都持久化到存储容器，必定会带来性能的影响。比如redis</span></span><br><span class="line"><span class="comment">            所以我们可以在整个控制层执行完毕了，response返回信息到浏览器时，才持久化session</span></span><br><span class="line"><span class="comment">         **/</span></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onResponseCommitted</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.request.commitSession();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    spring-session 的request重写类，这几乎是最重要的一个重写类。里面重写了获取getSession，Session等方法以及类</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">SessionRepositoryRequestWrapper</span></span></span><br><span class="line"><span class="class">            <span class="keyword">extends</span> <span class="title">HttpServletRequestWrapper</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> Boolean requestedSessionIdValid;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">boolean</span> requestedSessionInvalidated;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> HttpServletResponse response;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> ServletContext servletContext;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">private</span> <span class="title">SessionRepositoryRequestWrapper</span><span class="params">(HttpServletRequest request,</span></span></span><br><span class="line"><span class="function"><span class="params">                HttpServletResponse response, ServletContext servletContext)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">super</span>(request);</span><br><span class="line">            <span class="keyword">this</span>.response = response;</span><br><span class="line">            <span class="keyword">this</span>.servletContext = servletContext;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * Uses the HttpSessionStrategy to write the session id to the response and</span></span><br><span class="line"><span class="comment">         * persist the Session.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">commitSession</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            HttpSessionWrapper wrappedSession = getCurrentSession();</span><br><span class="line">            <span class="keyword">if</span> (wrappedSession == <span class="keyword">null</span>) &#123;</span><br><span class="line">                   <span class="comment">// session失效，删除cookie或者header</span></span><br><span class="line">                <span class="keyword">if</span> (isInvalidateClientSession()) &#123;</span><br><span class="line">                    SessionRepositoryFilter.<span class="keyword">this</span>.httpSessionStrategy</span><br><span class="line">                            .onInvalidateSession(<span class="keyword">this</span>, <span class="keyword">this</span>.response);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                S session = wrappedSession.getSession();</span><br><span class="line">                SessionRepositoryFilter.<span class="keyword">this</span>.sessionRepository.save(session);</span><br><span class="line">                <span class="keyword">if</span> (!isRequestedSessionIdValid()</span><br><span class="line">                        || !session.getId().equals(getRequestedSessionId())) &#123;</span><br><span class="line">                <span class="comment">// 把cookie或者header写回给浏览器保存  </span></span><br><span class="line">                SessionRepositoryFilter.<span class="keyword">this</span>.httpSessionStrategy.onNewSession(session,</span><br><span class="line">                            <span class="keyword">this</span>, <span class="keyword">this</span>.response);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">        <span class="function"><span class="keyword">private</span> HttpSessionWrapper <span class="title">getCurrentSession</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> (HttpSessionWrapper) getAttribute(CURRENT_SESSION_ATTR);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setCurrentSession</span><span class="params">(HttpSessionWrapper currentSession)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (currentSession == <span class="keyword">null</span>) &#123;</span><br><span class="line">                removeAttribute(CURRENT_SESSION_ATTR);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                setAttribute(CURRENT_SESSION_ATTR, currentSession);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@SuppressWarnings</span>(<span class="string">"unused"</span>)</span><br><span class="line">        <span class="function"><span class="keyword">public</span> String <span class="title">changeSessionId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            HttpSession session = getSession(<span class="keyword">false</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (session == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(</span><br><span class="line">                        <span class="string">"Cannot change session ID. There is no session associated with this request."</span>);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// eagerly get session attributes in case implementation lazily loads them</span></span><br><span class="line">            Map&lt;String, Object&gt; attrs = <span class="keyword">new</span> HashMap&lt;String, Object&gt;();</span><br><span class="line">            Enumeration&lt;String&gt; iAttrNames = session.getAttributeNames();</span><br><span class="line">            <span class="keyword">while</span> (iAttrNames.hasMoreElements()) &#123;</span><br><span class="line">                String attrName = iAttrNames.nextElement();</span><br><span class="line">                Object value = session.getAttribute(attrName);</span><br><span class="line"></span><br><span class="line">                attrs.put(attrName, value);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            SessionRepositoryFilter.<span class="keyword">this</span>.sessionRepository.delete(session.getId());</span><br><span class="line">            HttpSessionWrapper original = getCurrentSession();</span><br><span class="line">            setCurrentSession(<span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line">            HttpSessionWrapper newSession = getSession();</span><br><span class="line">            original.setSession(newSession.getSession());</span><br><span class="line"></span><br><span class="line">            newSession.setMaxInactiveInterval(session.getMaxInactiveInterval());</span><br><span class="line">            <span class="keyword">for</span> (Map.Entry&lt;String, Object&gt; attr : attrs.entrySet()) &#123;</span><br><span class="line">                String attrName = attr.getKey();</span><br><span class="line">                Object attrValue = attr.getValue();</span><br><span class="line">                newSession.setAttribute(attrName, attrValue);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> newSession.getId();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 判断session是否有效</span></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isRequestedSessionIdValid</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.requestedSessionIdValid == <span class="keyword">null</span>) &#123;</span><br><span class="line">                String sessionId = getRequestedSessionId();</span><br><span class="line">                S session = sessionId == <span class="keyword">null</span> ? <span class="keyword">null</span> : getSession(sessionId);</span><br><span class="line">                <span class="keyword">return</span> isRequestedSessionIdValid(session);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.requestedSessionIdValid;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">isRequestedSessionIdValid</span><span class="params">(S session)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.requestedSessionIdValid == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">this</span>.requestedSessionIdValid = session != <span class="keyword">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.requestedSessionIdValid;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">isInvalidateClientSession</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> getCurrentSession() == <span class="keyword">null</span> &amp;&amp; <span class="keyword">this</span>.requestedSessionInvalidated;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">private</span> S <span class="title">getSession</span><span class="params">(String sessionId)</span> </span>&#123;</span><br><span class="line">             <span class="comment">// 从session存储容器中根据sessionID获取session</span></span><br><span class="line">            S session = SessionRepositoryFilter.<span class="keyword">this</span>.sessionRepository</span><br><span class="line">                    .getSession(sessionId);</span><br><span class="line">            <span class="keyword">if</span> (session == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 设置sesison的最后访问时间，以防过期</span></span><br><span class="line">            session.setLastAccessedTime(System.currentTimeMillis());</span><br><span class="line">            <span class="keyword">return</span> session;</span><br><span class="line">        &#125;</span><br><span class="line">          <span class="comment">/**</span></span><br><span class="line"><span class="comment">          这个方法是不是很熟悉，下面还有个getSession()才更加熟悉。没错，就是在这里重新获取session方法  </span></span><br><span class="line"><span class="comment">          **/</span></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> HttpSessionWrapper <span class="title">getSession</span><span class="params">(<span class="keyword">boolean</span> create)</span> </span>&#123;</span><br><span class="line">            <span class="comment">//快速获取session，可以理解为一级缓存、二级缓存这种关系</span></span><br><span class="line">            HttpSessionWrapper currentSession = getCurrentSession();</span><br><span class="line">            <span class="keyword">if</span> (currentSession != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> currentSession;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//从httpSessionStratge里面根据cookie或者header获取sessionID</span></span><br><span class="line">            String requestedSessionId = getRequestedSessionId();</span><br><span class="line">            <span class="keyword">if</span> (requestedSessionId != <span class="keyword">null</span></span><br><span class="line">                    &amp;&amp; getAttribute(INVALID_SESSION_ID_ATTR) == <span class="keyword">null</span>) &#123;                                                                                     </span><br><span class="line">                <span class="comment">//从存储容器获取session以及设置当次初始化属性                                            </span></span><br><span class="line">                S session = getSession(requestedSessionId);</span><br><span class="line">                <span class="keyword">if</span> (session != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">this</span>.requestedSessionIdValid = <span class="keyword">true</span>;</span><br><span class="line">                    currentSession = <span class="keyword">new</span> HttpSessionWrapper(session, getServletContext());</span><br><span class="line">                    currentSession.setNew(<span class="keyword">false</span>);</span><br><span class="line">                    setCurrentSession(currentSession);</span><br><span class="line">                    <span class="keyword">return</span> currentSession;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> &#123;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">if</span> (SESSION_LOGGER.isDebugEnabled()) &#123;</span><br><span class="line">                        SESSION_LOGGER.debug(</span><br><span class="line">                                <span class="string">"No session found by id: Caching result for getSession(false) for this HttpServletRequest."</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                    setAttribute(INVALID_SESSION_ID_ATTR, <span class="string">"true"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (!create) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (SESSION_LOGGER.isDebugEnabled()) &#123;</span><br><span class="line">                SESSION_LOGGER.debug(</span><br><span class="line">                        <span class="string">"A new session was created. To help you troubleshoot where the session was created we provided a StackTrace (this is not an error). You can prevent this from appearing by disabling DEBUG logging for "</span></span><br><span class="line">                                + SESSION_LOGGER_NAME,</span><br><span class="line">                        <span class="keyword">new</span> RuntimeException(</span><br><span class="line">                                <span class="string">"For debugging purposes only (not an error)"</span>));</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 如果该浏览器或者其他http访问者是初次访问服务器，则为他创建个新的session</span></span><br><span class="line">            S session = SessionRepositoryFilter.<span class="keyword">this</span>.sessionRepository.createSession();</span><br><span class="line">            session.setLastAccessedTime(System.currentTimeMillis());</span><br><span class="line">            currentSession = <span class="keyword">new</span> HttpSessionWrapper(session, getServletContext());</span><br><span class="line">            setCurrentSession(currentSession);</span><br><span class="line">            <span class="keyword">return</span> currentSession;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> ServletContext <span class="title">getServletContext</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="keyword">this</span>.servletContext != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.servletContext;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// Servlet 3.0+</span></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">super</span>.getServletContext();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> HttpSessionWrapper <span class="title">getSession</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> getSession(<span class="keyword">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> String <span class="title">getRequestedSessionId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> SessionRepositoryFilter.<span class="keyword">this</span>.httpSessionStrategy</span><br><span class="line">                    .getRequestedSessionId(<span class="keyword">this</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">        HttpSession的重写类</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">HttpSessionWrapper</span> <span class="keyword">extends</span> <span class="title">ExpiringSessionHttpSession</span>&lt;<span class="title">S</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">            HttpSessionWrapper(S session, ServletContext servletContext) &#123;</span><br><span class="line">                <span class="keyword">super</span>(session, servletContext);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">invalidate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                <span class="keyword">super</span>.invalidate();</span><br><span class="line">                SessionRepositoryRequestWrapper.<span class="keyword">this</span>.requestedSessionInvalidated = <span class="keyword">true</span>;</span><br><span class="line">                setCurrentSession(<span class="keyword">null</span>);</span><br><span class="line">                SessionRepositoryFilter.<span class="keyword">this</span>.sessionRepository.delete(getId());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Redis存储容器实现。<br>主要实现存储公共基础类-&gt;FindByIndexNameSessionRepository ,里面主要有根据indexName从redis中查找session、根据sessionID对redis中的session增删改查的方法。<br>关于redis的session存储容器，实际上spring-session是有些缺陷的。比如无法做到session的过期以及销毁的实时发布事件，以及getCurrentSession中可能存在的一些并发问题（小问题）。但整体来说还是可用性很高的，毕竟我们自己写一套这类框架成本很高。<br>以上只是针对redis session的存储容器，其他存储容器可能会比redis更好，比如gemfire，至少在事件发布上是完整了（根据它实现了事件猜的</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/02/Redis学习笔记——分布式锁的正确实现方式/" rel="next" title="Redis学习笔记——分布式锁的正确实现方式">
+                <i class="fa fa-chevron-left"></i> Redis学习笔记——分布式锁的正确实现方式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/06/spring-注解标签总结/" rel="prev" title="spring 注解标签总结">
+                spring 注解标签总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Duke Du</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Duke Du</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
