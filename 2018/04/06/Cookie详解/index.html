@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="cookie简介1. 定义cookie是由服务器发送给客户端（浏览器）的小量信息。 2. 作用cookie是键值对形式存储的少量信息，那它有什么作用呢？ 我们知道，平时上网时都是使用无状态的HTTP协议传输出数据，这意味着客户端与服务端在数据传送完成后就会中断连接。这时我们就需要一个一直保持会话连接的机制。在session出现前，cookie就完全充当了这种角色。也就是，cookie的小量信息能帮">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Cookie详解">
+<meta property="og:url" content="http://yoursite.com/2018/04/06/Cookie详解/index.html">
+<meta property="og:site_name" content="Duke Du的博客">
+<meta property="og:description" content="cookie简介1. 定义cookie是由服务器发送给客户端（浏览器）的小量信息。 2. 作用cookie是键值对形式存储的少量信息，那它有什么作用呢？ 我们知道，平时上网时都是使用无状态的HTTP协议传输出数据，这意味着客户端与服务端在数据传送完成后就会中断连接。这时我们就需要一个一直保持会话连接的机制。在session出现前，cookie就完全充当了这种角色。也就是，cookie的小量信息能帮">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-04-06T07:10:17.023Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Cookie详解">
+<meta name="twitter:description" content="cookie简介1. 定义cookie是由服务器发送给客户端（浏览器）的小量信息。 2. 作用cookie是键值对形式存储的少量信息，那它有什么作用呢？ 我们知道，平时上网时都是使用无状态的HTTP协议传输出数据，这意味着客户端与服务端在数据传送完成后就会中断连接。这时我们就需要一个一直保持会话连接的机制。在session出现前，cookie就完全充当了这种角色。也就是，cookie的小量信息能帮">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/06/Cookie详解/"/>
+
+
+
+
+
+  <title>Cookie详解 | Duke Du的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Duke Du的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/06/Cookie详解/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Duke Du">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Duke Du的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Cookie详解</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-06T15:09:50+08:00">
+                2018-04-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="cookie简介"><a href="#cookie简介" class="headerlink" title="cookie简介"></a><strong>cookie简介</strong></h1><h2 id="1-定义"><a href="#1-定义" class="headerlink" title="1. 定义"></a>1. 定义</h2><p>cookie是由服务器发送给客户端（浏览器）的小量信息。</p>
+<h2 id="2-作用"><a href="#2-作用" class="headerlink" title="2. 作用"></a>2. 作用</h2><p>cookie是键值对形式存储的少量信息，那它有什么作用呢？</p>
+<p>我们知道，平时上网时都是使用无状态的HTTP协议传输出数据，这意味着客户端与服务端在数据传送完成后就会中断连接。这时我们就需要一个一直保持会话连接的机制。在session出现前，cookie就完全充当了这种角色。也就是，cookie的小量信息能帮助我们跟踪会话。一般该信息记录用户身份。</p>
+<p>当然cookie也常记录跟踪购物车的商品信息（如数量）、记录用户访问次数等。</p>
+<h2 id="3-原理"><a href="#3-原理" class="headerlink" title="3. 原理"></a>3. 原理</h2><p>客户端请求服务器时，如果服务器需要记录该用户状态，就使用response向客户端浏览器颁发一个Cookie。而客户端浏览器会把Cookie保存起来。当浏览器再请求服务器时，浏览器把请求的网址连同该Cookie一同提交给服务器。服务器通过检查该Cookie来获取用户状态。</p>
+<h2 id="4-添加cookie示例"><a href="#4-添加cookie示例" class="headerlink" title="4.添加cookie示例"></a>4.添加cookie示例</h2><p>获取客户端的Cookie时，只能获取name与value属性，其它属性都不会被提交。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Cookie c = new Cookie(&quot;username&quot;,&quot;peter&quot;);// 新建一个Cookie对象</span><br><span class="line">c.setMaxAge(24*60*60);                    // 设置过期时间1天，以秒为单位</span><br><span class="line">response.addCookie(c);                    // 保存cookie到客户端123</span><br></pre></td></tr></table></figure>
+<h2 id="5-删除cookie示例"><a href="#5-删除cookie示例" class="headerlink" title="5.删除cookie示例"></a>5.删除cookie示例</h2><p>删除某个Cookie时，只需要新建一个只有maxAge和value不一样的同名Cookie，然后添加到response中覆盖原来的Cookie</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Cookie cookie = new Cookie(&quot;username&quot;,&quot;peter&quot;);// 新建Cookie</span><br><span class="line">cookie.setMaxAge(0);                           // 设置生命周期为0，表示将要删除</span><br><span class="line">response.addCookie(cookie);                    // 执行添加后就从response里删除了123</span><br></pre></td></tr></table></figure>
+<h2 id="6-修改cookie示例"><a href="#6-修改cookie示例" class="headerlink" title="6.修改cookie示例"></a>6.修改cookie示例</h2><p>修改某个Cookie时，只需要新建一个只有value属性不一样的同名Cookie，然后添加到response中覆盖原来的Cookie</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Cookie cookie = new Cookie(&quot;username&quot;,&quot;joker&quot;);// 新建Cookie</span><br><span class="line">cookie.setMaxAge(24*60*60);                    // 设置生命周期</span><br><span class="line">response.addCookie(cookie);                    // 执行添加后就从response里覆盖修改了123</span><br></pre></td></tr></table></figure>
+<p><strong>注意</strong>：修改、删除Cookie时，新建的Cookie除value、maxAge之外的所有属性，例如name、path、domain等，都要与原Cookie完全一样。否则，浏览器将视为两个不同的Cookie而不会覆盖之前的Cookie，从而导致修改、删除失败。</p>
+<h1 id="Cookie类的各方法详解"><a href="#Cookie类的各方法详解" class="headerlink" title="Cookie类的各方法详解"></a><strong>Cookie类的各方法详解</strong></h1><p>Cookie类在javax.servlet.http.Cookie包中</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>返回类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>setValue(String newValue)</td>
+<td>void</td>
+<td>给当前cookie重新赋值</td>
+</tr>
+<tr>
+<td>setComment(String purpose)</td>
+<td>void</td>
+<td>对该cookie进行描述的信息(说明作用)，浏览器显示cookie信息时能看到</td>
+</tr>
+<tr>
+<td>setDomain(String pattern)</td>
+<td>void</td>
+<td>符合该pattern（域名正则）的就可以访问该Cookie的域名。如果设置为“.google.com”，则所有以“google.com”结尾的域名都可以访问该Cookie。注意第一个字符必须为“.”</td>
+</tr>
+<tr>
+<td>setHttpOnly(boolean httpOnly)</td>
+<td>void</td>
+<td>设为true后，只能通过http访问，javascript无法访问,还可防止xss读取cookie</td>
+</tr>
+<tr>
+<td>setMaxAge(int expiry)</td>
+<td>void</td>
+<td>该Cookie失效时间，单位秒。如果为正数，则该Cookie在expiry秒之后失效。如果为负数，该Cookie为临时Cookie，关闭浏览器即失效，浏览器也不会以任何形式保存该Cookie。<strong>如果为0，表示删除该Cookie</strong>。默认为–1</td>
+</tr>
+<tr>
+<td>setPath(String uri)</td>
+<td>void</td>
+<td>设置Cookie的使用路径。后面紧接着详解。如果设置为“/agx/”，则只有uri为“/agx”的程序可以访问该Cookie。如果设置为“/”，则本域名下的uri都可以访问该Cookie。注意最后一个字符必须为”/”</td>
+</tr>
+<tr>
+<td>setSecure(boolean flag)</td>
+<td>void</td>
+<td>是否使用安全传输协议。为true时，只有当是https请求连接时cookie才会发送给服务器端，而http时不会，但是服务端还是可以发送给浏览端的。</td>
+</tr>
+</tbody>
+</table>
+<p>对应的getter方法我就不讲了。<br>如果cookie值为Unicode字符，需要为字符编码。如果cookie值为二进制数据，则需要使用BASE64编码</p>
+<h1 id="cookie的setPath-和setDomain-方法"><a href="#cookie的setPath-和setDomain-方法" class="headerlink" title="cookie的setPath()和setDomain()方法"></a><strong>cookie的setPath()和setDomain()方法</strong></h1><p>默认情况下cookie只能在一个应用中共享，即一个cookie只能由创建它的应用获得。</p>
+<h2 id="设置同一服务器内的cookie使用范围用setPath"><a href="#设置同一服务器内的cookie使用范围用setPath" class="headerlink" title="设置同一服务器内的cookie使用范围用setPath"></a>设置同一服务器内的cookie使用范围用setPath</h2><ol>
+<li>c.setPath(“/”)，使同一服务器内所有应用都可访问到该Cookie：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Cookie c = new Cookie(&quot;name&quot;,&quot;peter&quot;);</span><br><span class="line">c.setMaxAge(24*60*60);  </span><br><span class="line">c.setPath(&quot;/&quot;);//同一服务器内所有应用都可访问到该Cookie</span><br><span class="line">response.addCookie(c); //保存cookie到客户端</span><br><span class="line">12345</span><br></pre></td></tr></table></figure>
+<ol>
+<li>如果同一服务器内有两个应用agx1.0和agx2.0<br>当我们在agx1.0里有<code>c.setPath(&quot;/agx2.0/&quot;);</code>时，该cookie就只能在agx2.0下面能获取到，就连创建该cookie的agx1.0也获取不到。</li>
+<li>如果在agx1.0里有<code>c.setPath(&quot;/agx2.0/abc/&quot;);</code>时,则只能在agx2.0/abc下面才能获得该cookie，即使在agx2.0下面也不能获取到。</li>
+</ol>
+<h2 id="cookie的跨域"><a href="#cookie的跨域" class="headerlink" title="cookie的跨域"></a>cookie的跨域</h2><p>1.正常情况下Cookie不可跨域名，如域名<a href="http://www.google.com颁发的Cookie不会被提交到域名www.baidu.com去。这是由Cookie的隐私安全机制决定的。即使在同一个一级域名下的两个二级域名如www.agx.com和images.agx.com也不能交互使用Cookie，因为二者的域名并不严格相同。如果想所有agx.com名下的二级域名都可以使用该Cookie，则需要设置Cookie的domain参数为”.agx.com”，例如：" target="_blank" rel="noopener">www.google.com颁发的Cookie不会被提交到域名www.baidu.com去。这是由Cookie的隐私安全机制决定的。即使在同一个一级域名下的两个二级域名如www.agx.com和images.agx.com也不能交互使用Cookie，因为二者的域名并不严格相同。如果想所有agx.com名下的二级域名都可以使用该Cookie，则需要设置Cookie的domain参数为”.agx.com”，例如：</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Cookie cookie = new Cookie(&quot;name&quot;,&quot;peter&quot;); // 新建Cookie</span><br><span class="line">cookie.setDomain(&quot;.agx.com&quot;);               // 设置域名</span><br><span class="line">cookie.setPath(&quot;/&quot;);                        // 设置路径</span><br><span class="line">cookie.setMaxAge(Integer.MAX_VALUE);        // 设置有效期为永久</span><br><span class="line">response.addCookie(cookie);                 // 输出到客户端12345</span><br></pre></td></tr></table></figure>
+<p>读者可以修改本机C:\WINDOWS\system32\drivers\etc下的hosts文件来配置多个临时域名，然后使用setCookie.jsp程序来设置跨域名Cookie验证domain属性。<br>注意：domain参数必须以点(“.”)开始。另外，name相同但domain不同的两个Cookie是两个不同的Cookie。如果想要两个域名完全不同的网站共有Cookie，可以生成两个name相同的Cookie，domain属性分别为两个域名。</p>
+<p>2.若A服务器的域名为：adv.audiogroup.com,有应用名为：agx1.0; B服务器的域名为：agx.com,有应用名为：agx2.0。<br>在A服务器的agx1.0应用下设置cookie如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Cookie cookie = new Cookie(&quot;name&quot;,&quot;peter&quot;); // 新建Cookie</span><br><span class="line">cookie.setDomain(&quot;.agx.com&quot;);               // 设置域名</span><br><span class="line">cookie.setPath(&quot;/&quot;);                        // 设置路径</span><br><span class="line">cookie.setMaxAge(Integer.MAX_VALUE);        // 设置有效期为永久</span><br><span class="line">response.addCookie(cookie);                 // 输出到客户端12345</span><br></pre></td></tr></table></figure>
+<p>这时，在B服务器下的agx2.0应用和agx1.0里都能取到上面的Cookie。<br>注：输入URL访问agx2.0时，必须输入域名才能获取其它服务器共享给它的cookie，如：<br>输入<a href="http://images.agx.com:8080/agx2.0" target="_blank" rel="noopener">http://images.agx.com:8080/agx2.0</a>,可以获取agx1.0在客户端设置的cookie<br>输入：<a href="http://localhost:8080/agx2.0" target="_blank" rel="noopener">http://localhost:8080/agx2.0</a>则不可以获得cookie。</p>
+<h2 id="setPath-与setDomain-的区别"><a href="#setPath-与setDomain-的区别" class="headerlink" title="setPath()与setDomain()的区别?"></a>setPath()与setDomain()的区别?</h2><p>setDomain()主要用来确定两个不同名称但后缀相同的网站地址是否能使用同一个Cookie。<br>例: <a href="http://www.agx.com和" target="_blank" rel="noopener">www.agx.com和</a> bbs.agx.com只要有<code>cookie.setDomain(&quot;.zjut.edu.cn&quot;);</code>就都能使用该cookie</p>
+<p>setPath()主要用来确定地址里什么后缀下能够使用这个Cookie</p>
+<p>归结起来就是：setDomain决定允许访问Cookie的域名，而setPath决定允许访问Cookie的路径（ContextPath）</p>
+<h1 id="获取用户请求里的cookie"><a href="#获取用户请求里的cookie" class="headerlink" title="获取用户请求里的cookie"></a><strong>获取用户请求里的cookie</strong></h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Cookie[] cookie = request.getCookies();//获取的是请求里的所有cookie组成的数组</span><br><span class="line">for(int i=0;i&lt;cookie.length;i++)&#123;</span><br><span class="line">    if(&quot;name&quot;.equals(cookie[i].getName()))&#123;</span><br><span class="line">        System.out.println(cookie[i].getValue());//得到peter</span><br><span class="line">        break;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;1234567</span><br></pre></td></tr></table></figure>
+<h1 id="解决cookie里中文乱码问题"><a href="#解决cookie里中文乱码问题" class="headerlink" title="解决cookie里中文乱码问题"></a><strong>解决cookie里中文乱码问题</strong></h1><p>Cookie中要保存中文只能编码。一般使用UTF-8编码即可。不推荐使用GBK等中文编码，因为浏览器不一定支持，而且JavaScript也不支持GBK编码。</p>
+<p>Cookie不仅可以使用ASCII字符与Unicode字符，还可以使用二进制数据。例如在Cookie中使用数字证书，提供安全度。使用二进制数据时也需要进行编码（如用BASE64编码保存二进制图片）。由于浏览器每次请求都会带着Cookie，因此Cookie内容不宜过多，所以一般不会在Cookie中存储二进制的内容</p>
+<h1 id="JS操作Cookie"><a href="#JS操作Cookie" class="headerlink" title="JS操作Cookie"></a><strong>JS操作Cookie</strong></h1><p>Cookie是保存在客户端的，所以浏览器可以使用脚本（JS）等操作Cookie。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">&lt;script language=javascript&gt; </span><br><span class="line">    //添加cookie</span><br><span class="line">    function setCookie(name,value,time)&#123; </span><br><span class="line">        var date= new Date(); </span><br><span class="line">        date.setDate(date.getDate()+time); </span><br><span class="line">        document.cookie = name+&quot;=&quot;+value+&quot;;expires=&quot;+date; </span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line">    //获得cookie</span><br><span class="line">    function getCookie(name)&#123; </span><br><span class="line">        var arr = document.cookie.split(&quot;;&quot;); </span><br><span class="line">        for(var i=0; i&lt;arr.length; i++)&#123; </span><br><span class="line">        var arr2 = arr[i].split(&quot;=&quot;); </span><br><span class="line">            if(arr2[0] == name)&#123; </span><br><span class="line">                return arr2[1]; </span><br><span class="line">            &#125; </span><br><span class="line">        &#125; </span><br><span class="line">        return null; </span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line">    //删除cookie</span><br><span class="line">    function removeCookie(name)&#123; </span><br><span class="line">        setCookie(name,&quot;&quot;,0) </span><br><span class="line">    &#125; </span><br><span class="line">&lt;/script&gt;12345678910111213141516171819202122232425</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">W3C标准的浏览器会阻止JavaScript读写任何不属于自己网站的Cookie。即A网站的JavaScript代码里获取不到B网站的Cookie。</span><br><span class="line">12</span><br></pre></td></tr></table></figure>
+<h1 id="使用cookie记住密码"><a href="#使用cookie记住密码" class="headerlink" title="使用cookie记住密码"></a><strong>使用cookie记住密码</strong></h1><p><strong>方案1</strong>：<br>直接把用户名与密码都保持到Cookie中，下次访问时检查Cookie中的用户名与密码，与数据库比较。这是一种比较危险的选择，一般不把密码等重要信息保存到Cookie中。<br><strong>方案2</strong>：<br>把密码加密后保存到Cookie中，下次访问时解密并与数据库比较。这种方案略微安全一些。如果不希望保存密码，还可以把登录的时间戳保存到Cookie与数据库中，到时只验证用户名与登录时间戳就可以了。<br><strong>方案3</strong>：<br>实现方式是把账号按照一定的规则（密钥）加密后，连同账号一块保存到Cookie中。下次访问时只需要判断账号的加密规则是否相同即可。<br>加 密：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">String userName = request.getParameter(&quot;userName&quot;);//获取用户名</span><br><span class="line">Md5Hash psw = new Md5Hash(userName, &quot;peter.com&quot;, 2);//以peter.com为密钥加密</span><br><span class="line"></span><br><span class="line">//将用户名添加进cookie并发送给客户端</span><br><span class="line">Cookie userCookie = new Cookie(&quot;userName&quot;,userName);</span><br><span class="line">userCookie.setMaxAge(7*24*60*60);</span><br><span class="line">response.addCookie(userCookie);</span><br><span class="line"></span><br><span class="line">//将密钥生成的密文加进cookie并发送给客户端</span><br><span class="line">Cookie c = new Cookie(&quot;key&quot;,psw.toString());</span><br><span class="line">c.setMaxAge(7*24*60*60);</span><br><span class="line">response.addCookie(c);123456789101112</span><br></pre></td></tr></table></figure>
+<p>解密：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">String usreName = null;</span><br><span class="line">String key = null;</span><br><span class="line">Cookie[] cookie = request.getCookies();</span><br><span class="line">if(cookie !=null)&#123;              </span><br><span class="line">    for(Cookie c:cookie)&#123;  // 遍历Cookie</span><br><span class="line">       if(&quot;userName&quot;.equals(c.getName()) </span><br><span class="line">           userName = c.getValue();      </span><br><span class="line">       if(&quot;key&quot;.equals(c.getName()) </span><br><span class="line">           key= cookie.getValue();       </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">if(userName != null &amp;&amp; key != null)&#123;   </span><br><span class="line">    String secrect = new Md5Hash(userName, &quot;peter.com&quot;, 2);</span><br><span class="line">    if(key.equals(secrect ))&#123;//加密规则正确，说明已经登录</span><br><span class="line">        //...</span><br><span class="line">        //....省略后续处理</span><br><span class="line">    &#125;</span><br><span class="line">&#125;123456789101112131415161718</span><br></pre></td></tr></table></figure>
+<p>由上面可知，如果将密码加密后存进cookie后，当我们下次访问登录页时，密码框里的密码将不是用户真正的密码。</p>
+<p>博主地址：<a href="http://blog.csdn.net/zcl_love_wx" target="_blank" rel="noopener">http://blog.csdn.net/zcl_love_wx</a> <a href="https://blog.csdn.net/zcl_love_wx/article/details/51992999" target="_blank" rel="noopener">https://blog.csdn.net/zcl_love_wx/article/details/51992999</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/06/客户端与服务器端交互-如何保持session/" rel="next" title="客户端与服务器端交互 如何保持session">
+                <i class="fa fa-chevron-left"></i> 客户端与服务器端交互 如何保持session
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Duke Du</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#cookie简介"><span class="nav-number">1.</span> <span class="nav-text">cookie简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-定义"><span class="nav-number">1.1.</span> <span class="nav-text">1. 定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-作用"><span class="nav-number">1.2.</span> <span class="nav-text">2. 作用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-原理"><span class="nav-number">1.3.</span> <span class="nav-text">3. 原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-添加cookie示例"><span class="nav-number">1.4.</span> <span class="nav-text">4.添加cookie示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-删除cookie示例"><span class="nav-number">1.5.</span> <span class="nav-text">5.删除cookie示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-修改cookie示例"><span class="nav-number">1.6.</span> <span class="nav-text">6.修改cookie示例</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Cookie类的各方法详解"><span class="nav-number">2.</span> <span class="nav-text">Cookie类的各方法详解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#cookie的setPath-和setDomain-方法"><span class="nav-number">3.</span> <span class="nav-text">cookie的setPath()和setDomain()方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#设置同一服务器内的cookie使用范围用setPath"><span class="nav-number">3.1.</span> <span class="nav-text">设置同一服务器内的cookie使用范围用setPath</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cookie的跨域"><span class="nav-number">3.2.</span> <span class="nav-text">cookie的跨域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#setPath-与setDomain-的区别"><span class="nav-number">3.3.</span> <span class="nav-text">setPath()与setDomain()的区别?</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#获取用户请求里的cookie"><span class="nav-number">4.</span> <span class="nav-text">获取用户请求里的cookie</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#解决cookie里中文乱码问题"><span class="nav-number">5.</span> <span class="nav-text">解决cookie里中文乱码问题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JS操作Cookie"><span class="nav-number">6.</span> <span class="nav-text">JS操作Cookie</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用cookie记住密码"><span class="nav-number">7.</span> <span class="nav-text">使用cookie记住密码</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Duke Du</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
