@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="背景  前段时间学习了zookeeper后，在新的项目中刚好派上了用场，我在项目中主要负责分布式任务调度模块的开发，对我自己来说是个不小的挑战。   分布式的任务调度，技术上我们选择了zookeeper，具体的整个分布式任务调度的架构选择会另起一篇文章进行介绍。   本文主要是介绍自己在项目中zookeeper的一些扩展使用，希望可以对大家有所帮助。   项目中使用的zookeeper版本3.3.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="zookeeper 跨机房">
+<meta property="og:url" content="http://yoursite.com/2018/04/09/zookeeper-跨机房/index.html">
+<meta property="og:site_name" content="Duke Du的博客">
+<meta property="og:description" content="背景  前段时间学习了zookeeper后，在新的项目中刚好派上了用场，我在项目中主要负责分布式任务调度模块的开发，对我自己来说是个不小的挑战。   分布式的任务调度，技术上我们选择了zookeeper，具体的整个分布式任务调度的架构选择会另起一篇文章进行介绍。   本文主要是介绍自己在项目中zookeeper的一些扩展使用，希望可以对大家有所帮助。   项目中使用的zookeeper版本3.3.">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://dl.iteye.com/upload/attachment/563376/1a065794-4536-391d-839a-26f3275ce378.jpg">
+<meta property="og:updated_time" content="2018-04-09T03:53:26.763Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="zookeeper 跨机房">
+<meta name="twitter:description" content="背景  前段时间学习了zookeeper后，在新的项目中刚好派上了用场，我在项目中主要负责分布式任务调度模块的开发，对我自己来说是个不小的挑战。   分布式的任务调度，技术上我们选择了zookeeper，具体的整个分布式任务调度的架构选择会另起一篇文章进行介绍。   本文主要是介绍自己在项目中zookeeper的一些扩展使用，希望可以对大家有所帮助。   项目中使用的zookeeper版本3.3.">
+<meta name="twitter:image" content="http://dl.iteye.com/upload/attachment/563376/1a065794-4536-391d-839a-26f3275ce378.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/09/zookeeper-跨机房/"/>
+
+
+
+
+
+  <title>zookeeper 跨机房 | Duke Du的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Duke Du的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/09/zookeeper-跨机房/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Duke Du">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Duke Du的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">zookeeper 跨机房</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-09T11:47:02+08:00">
+                2018-04-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>  前段时间学习了zookeeper后，在新的项目中刚好派上了用场，我在项目中主要负责分布式任务调度模块的开发，对我自己来说是个不小的挑战。</p>
+<p>  分布式的任务调度，技术上我们选择了zookeeper，具体的整个分布式任务调度的架构选择会另起一篇文章进行介绍。</p>
+<p>  本文主要是介绍自己在项目中zookeeper的一些扩展使用，希望可以对大家有所帮助。</p>
+<p>  项目中使用的zookeeper版本3.3.3，对应的文档地址： <a href="http://zookeeper.apache.org/doc/trunk/" target="_blank" rel="noopener">http://zookeeper.apache.org/doc/trunk/</a></p>
+<ul>
+<li><a href="http://agapple.iteye.com/blog/1111377" target="_blank" rel="noopener">zookeeper学习记录</a> </li>
+<li><a href="http://agapple.iteye.com/blog/1112032" target="_blank" rel="noopener">zookeeper学习记录(二)</a> </li>
+</ul>
+<h1 id="扩展一：优先集群"><a href="#扩展一：优先集群" class="headerlink" title="扩展一：优先集群"></a>扩展一：优先集群</h1><p>先来点背景知识：</p>
+<p>1.zookeeper中的server机器之间会组成leader/follower集群，1:n的关系。采用了paxos一致性算法保证了数据的一致性，就是leader/follower会采用通讯的方式进行投票来实现paxns。</p>
+<p>2.zookeeper还支持一种observer模式，提供只读服务不参与投票，提升系统，对应文档： <a href="http://zookeeper.apache.org/doc/trunk/zookeeperObservers.html" target="_blank" rel="noopener">http://zookeeper.apache.org/doc/trunk/zookeeperObservers.html</a></p>
+<p>我们项目特性的决定了我们需要进行跨机房操作，比如杭州，美国，香港，青岛等多个机房之间进行数据交互。</p>
+<p>跨机房之间对应的网络延迟都比较大，比如中美机房走海底光缆有ping操作200ms的延迟，杭州和青岛机房有70ms的延迟。 </p>
+<p>为了提升系统的网络性能，我们在部署zookeeper网络时会在每个机房部署节点，多个机房之间再组成一个大的网络保证数据一致性。(zookeeper千万别再搞多个集群)</p>
+<p>最后的部署结构就会是：</p>
+<ul>
+<li>杭州机房  &gt;=3台 (构建leader/follower的zk集群)</li>
+<li>青岛机房  &gt;=1台 (构建observer的zk集群)</li>
+<li>美国机房  &gt;=1台 (构建observer的zk集群)</li>
+<li>香港机房  &gt;=1台 (构建observer的zk集群)</li>
+</ul>
+<p><img src="http://dl.iteye.com/upload/attachment/563376/1a065794-4536-391d-839a-26f3275ce378.jpg" alt="img"></p>
+<p>一句话概括就是： 在单个机房内组成一个投票集群，外围的机房都会是一个observer集群和投票集群进行数据交互。 这样部署的一些好处，大家可以细细体会一下</p>
+<p>针对这样的部署结构，我们会引入一个优先集群问题： 比如在美国机房的机器需要优先去访问本机房的zk集群，访问不到后才去访问杭州机房。 </p>
+<p>默认在zookeeper3.3.3的实现中，认为所有的节点都是对等的。并没有对应的优先集群的概念，单个机器也没有对应的优先级的概念。</p>
+<p>扩展代码：(比较暴力，采用反射的方式改变了zk client的集群列表)</p>
+<ul>
+<li>先使用美国机房的集群ip初始化一次zk client</li>
+<li>通过反射方式，强制在初始化后的zk client中的server列表中又加入杭州机房的机器列表</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">ZooKeeper zk = <span class="keyword">null</span>;  </span><br><span class="line">        <span class="keyword">try</span> &#123;  </span><br><span class="line">            zk = <span class="keyword">new</span> ZooKeeper(cluster1, sessionTimeout, <span class="keyword">new</span> AsyncWatcher() &#123;  </span><br><span class="line">  </span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">asyncProcess</span><span class="params">(WatchedEvent event)</span> </span>&#123;  </span><br><span class="line">                    <span class="comment">//do nothing   </span></span><br><span class="line">                &#125;  </span><br><span class="line">  </span><br><span class="line">            &#125;);  </span><br><span class="line">            <span class="keyword">if</span> (serveraddrs.size() &gt; <span class="number">1</span>) &#123;  </span><br><span class="line">                <span class="comment">// 强制的声明accessible  </span></span><br><span class="line">                ReflectionUtils.makeAccessible(clientCnxnField);  </span><br><span class="line">                ReflectionUtils.makeAccessible(serverAddrsField);  </span><br><span class="line">                <span class="comment">// 添加第二组集群列表  </span></span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; serveraddrs.size(); i++) &#123;  </span><br><span class="line">                    String cluster = serveraddrs.get(i);  </span><br><span class="line">                    <span class="comment">// 强制获取zk中的地址信息  </span></span><br><span class="line">                    ClientCnxn cnxn = (ClientCnxn) ReflectionUtils.getField(clientCnxnField, zk);  </span><br><span class="line">                    List&lt;InetSocketAddress&gt; serverAddrs = (List&lt;InetSocketAddress&gt;) ReflectionUtils  </span><br><span class="line">                            .getField(serverAddrsField, cnxn);  </span><br><span class="line">                    <span class="comment">// 添加第二组集群列表  </span></span><br><span class="line">                    serverAddrs.addAll(buildServerAddrs(cluster));  </span><br><span class="line">                &#125;  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<h1 id="扩展二：异步Watcher处理"><a href="#扩展二：异步Watcher处理" class="headerlink" title="扩展二：异步Watcher处理"></a>扩展二：异步Watcher处理</h1><p>  最早在看zookeeper的代码时，一直对它的watcher处理比较满意，使用watcher推送数据可以很方便的实现分布式锁的功能。</p>
+<p>zookeeper的watcher实现原理也挺简单的，就是在zookeeper client和zookeeper server上都保存一份对应的watcher对象。每个zookeeper机器都会有一份完整的node tree数据和watcher数据，每次leader通知follower/observer数据发生变更后，每个zookeeper server会根据自己节点中的watcher事件推送给响应的zookeeper client，每个zk client收到后再根据内存中的watcher引用，进行回调。</p>
+<p>这里会有个问题，就是zk client在处理watcher时，回凋的过程是一个串行的执行过程，所以单个watcher的处理慢会影响整个列表的响应。 </p>
+<p>可以看一下ClientCnxn类中的EventThread处理，该线程会定时消费一个queue的数据，挨个调用processEvent(Object event) 进行回调处理。</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AsyncWatcher</span> <span class="keyword">implements</span> <span class="title">Watcher</span> </span>&#123;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span>       DEFAULT_POOL_SIZE    = <span class="number">30</span>;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span>       DEFAULT_ACCEPT_COUNT = <span class="number">60</span>;  </span><br><span class="line">  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> ExecutorService executor = <span class="keyword">new</span> ThreadPoolExecutor(  </span><br><span class="line">                                                                <span class="number">1</span>,  </span><br><span class="line">                                                                DEFAULT_POOL_SIZE,  </span><br><span class="line">                                                                <span class="number">0L</span>,  </span><br><span class="line">                                                                TimeUnit.MILLISECONDS,  </span><br><span class="line">                                                                <span class="keyword">new</span> ArrayBlockingQueue(  </span><br><span class="line">                                                                        DEFAULT_ACCEPT_COUNT),  </span><br><span class="line">                                                                <span class="keyword">new</span> NamedThreadFactory(  </span><br><span class="line">                                                                        <span class="string">"Arbitrate-Async-Watcher"</span>),  </span><br><span class="line">                                                                <span class="keyword">new</span> ThreadPoolExecutor.CallerRunsPolicy());  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(<span class="keyword">final</span> WatchedEvent event)</span> </span>&#123;  </span><br><span class="line">        executor.execute(<span class="keyword">new</span> Runnable() &#123;<span class="comment">//提交异步处理  </span></span><br><span class="line">  </span><br><span class="line">                    <span class="meta">@Override</span>  </span><br><span class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">                        asyncProcess(event);  </span><br><span class="line">                    &#125;  </span><br><span class="line">                &#125;);  </span><br><span class="line">  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">asyncProcess</span><span class="params">(WatchedEvent event)</span></span>;  </span><br><span class="line">  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>说明：</p>
+<ul>
+<li>zookeeper针对watcher的调用是以单线程串行的方式进行处理，容易造成堵塞影响，monitor的数据同步及时性</li>
+<li>AsyncWatcher为采取的一种策略为当不超过acceptCount=60的任务时，会采用异步线程的方式处理。如果超过60任务，会变为原先的单线程串行的模式</li>
+</ul>
+<h1 id="扩展三：重试处理"><a href="#扩展三：重试处理" class="headerlink" title="扩展三：重试处理"></a>扩展三：重试处理</h1><p>这个也不多说啥，看一下相关文档就清楚了</p>
+<ul>
+<li><a href="http://wiki.apache.org/hadoop/ZooKeeper/ErrorHandling" target="_blank" rel="noopener">http://wiki.apache.org/hadoop/ZooKeeper/ErrorHandling</a></li>
+<li><a href="http://wiki.apache.org/hadoop/ZooKeeper/FAQ#A3" target="_blank" rel="noopener">http://wiki.apache.org/hadoop/ZooKeeper/FAQ#A3</a></li>
+</ul>
+<p>需要特殊处理下ConnectionLoss的异常，一种可恢复的异常。</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ZooKeeperOperation</span>&lt;<span class="title">T</span>&gt; </span>&#123;  </span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> T <span class="title">execute</span><span class="params">()</span> <span class="keyword">throws</span> KeeperException, InterruptedException</span>;  </span><br><span class="line">&#125;  </span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line"><span class="comment">/** </span></span><br><span class="line"><span class="comment">     * 包装重试策略 </span></span><br><span class="line"><span class="comment">     */</span>  </span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt; <span class="function">T <span class="title">retryOperation</span><span class="params">(ZooKeeperOperation&lt;T&gt; operation)</span> <span class="keyword">throws</span> KeeperException,  </span></span><br><span class="line"><span class="function">            InterruptedException </span>&#123;  </span><br><span class="line">        KeeperException exception = <span class="keyword">null</span>;  </span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; maxRetry; i++) &#123;  </span><br><span class="line">            <span class="keyword">try</span> &#123;  </span><br><span class="line">                <span class="keyword">return</span> (T) operation.execute();  </span><br><span class="line">            &#125; <span class="keyword">catch</span> (KeeperException.SessionExpiredException e) &#123;  </span><br><span class="line">                logger.warn(<span class="string">"Session expired for: "</span> + <span class="keyword">this</span> + <span class="string">" so reconnecting due to: "</span> + e, e);  </span><br><span class="line">                <span class="keyword">throw</span> e;  </span><br><span class="line">            &#125; <span class="keyword">catch</span> (KeeperException.ConnectionLossException e) &#123; <span class="comment">//特殊处理Connection Loss  </span></span><br><span class="line">                <span class="keyword">if</span> (exception == <span class="keyword">null</span>) &#123;  </span><br><span class="line">                    exception = e;  </span><br><span class="line">                &#125;  </span><br><span class="line">                logger.warn(<span class="string">"Attempt "</span> + i + <span class="string">" failed with connection loss so "</span>  </span><br><span class="line">                        + <span class="string">"attempting to reconnect: "</span> + e, e);  </span><br><span class="line">  </span><br><span class="line">                retryDelay(i);  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125;  </span><br><span class="line">  </span><br><span class="line">        <span class="keyword">throw</span> exception;  </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h1 id="注意点：Watcher原子性"><a href="#注意点：Watcher原子性" class="headerlink" title="注意点：Watcher原子性"></a>注意点：Watcher原子性</h1><p>在使用zookeeper的过程中，需要特别注意一点就是注册对应watcher事件时，如果当前的节点已经满足了条件，比如exist的watcher，它不会触发你的watcher，而会等待下一次watcher条件的满足。</p>
+<p>它的watcher是一个一次性的监听，而不是一个永久的订阅过程。所以在watcher响应和再次注册watcher过程并不是一个原子操作，编写多线程代码和锁时需要特别注意</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>  zookeepr是一个挺不错的产品，源代码写的也非常不错，大量使用了queue和异步Thread的处理模式，真是一个伟大的产品。</p>
+<p><a href="http://agapple.iteye.com/blog/1184023" target="_blank" rel="noopener">http://agapple.iteye.com/blog/1184023</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/06/Cookie详解/" rel="next" title="Cookie详解">
+                <i class="fa fa-chevron-left"></i> Cookie详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Duke Du</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展一：优先集群"><span class="nav-number">2.</span> <span class="nav-text">扩展一：优先集群</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展二：异步Watcher处理"><span class="nav-number">3.</span> <span class="nav-text">扩展二：异步Watcher处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#扩展三：重试处理"><span class="nav-number">4.</span> <span class="nav-text">扩展三：重试处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#注意点：Watcher原子性"><span class="nav-number">5.</span> <span class="nav-text">注意点：Watcher原子性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Duke Du</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
