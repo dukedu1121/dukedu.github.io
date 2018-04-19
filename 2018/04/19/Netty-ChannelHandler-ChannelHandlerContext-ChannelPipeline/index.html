@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="首先先分析一下ChannelHandler，ChannelHandler是我们日常开发中使用最多的组件了，大概我们平时写的最多的组件就是Handler了，继承图如下  我们平时继承的最多的就是ChannelInboundHandlerAdapter和ChannelOutboundHandlerAdapter,这两个不是接口也不是抽象类，所以我们可以仅仅重写我们需要的方法，没有必须要实现的方法，当然">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Netty--ChannelHandler,ChannelHandlerContext,ChannelPipeline">
+<meta property="og:url" content="http://yoursite.com/2018/04/19/Netty-ChannelHandler-ChannelHandlerContext-ChannelPipeline/index.html">
+<meta property="og:site_name" content="Duke Du的博客">
+<meta property="og:description" content="首先先分析一下ChannelHandler，ChannelHandler是我们日常开发中使用最多的组件了，大概我们平时写的最多的组件就是Handler了，继承图如下  我们平时继承的最多的就是ChannelInboundHandlerAdapter和ChannelOutboundHandlerAdapter,这两个不是接口也不是抽象类，所以我们可以仅仅重写我们需要的方法，没有必须要实现的方法，当然">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://img-blog.csdn.net/20160504160757707?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="https://img-blog.csdn.net/20160504161903129?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="https://img-blog.csdn.net/20160504165756603?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="https://img-blog.csdn.net/20160504173625107?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="https://img-blog.csdn.net/20160504173922899?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="https://img-blog.csdn.net/20160504175109763?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:updated_time" content="2018-04-19T09:15:52.461Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Netty--ChannelHandler,ChannelHandlerContext,ChannelPipeline">
+<meta name="twitter:description" content="首先先分析一下ChannelHandler，ChannelHandler是我们日常开发中使用最多的组件了，大概我们平时写的最多的组件就是Handler了，继承图如下  我们平时继承的最多的就是ChannelInboundHandlerAdapter和ChannelOutboundHandlerAdapter,这两个不是接口也不是抽象类，所以我们可以仅仅重写我们需要的方法，没有必须要实现的方法，当然">
+<meta name="twitter:image" content="https://img-blog.csdn.net/20160504160757707?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/19/Netty-ChannelHandler-ChannelHandlerContext-ChannelPipeline/"/>
+
+
+
+
+
+  <title>Netty--ChannelHandler,ChannelHandlerContext,ChannelPipeline | Duke Du的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Duke Du的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/19/Netty-ChannelHandler-ChannelHandlerContext-ChannelPipeline/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Duke Du">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Duke Du的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Netty--ChannelHandler,ChannelHandlerContext,ChannelPipeline</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-19T17:15:10+08:00">
+                2018-04-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>首先先分析一下ChannelHandler，ChannelHandler是我们日常开发中使用最多的组件了，大概我们平时写的最多的组件就是Handler了，继承图如下</p>
+<p><img src="https://img-blog.csdn.net/20160504160757707?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>我们平时继承的最多的就是ChannelInboundHandlerAdapter和ChannelOutboundHandlerAdapter,这两个不是接口也不是抽象类，所以我们可以仅仅重写我们需要的方法，没有必须要实现的方法，当然我们也会使用SimpleChannelInboundHandler，这个类我们上个小节也稍微讲了它的优缺点，这里不赘述</p>
+<p>ChannelHandler,ChannelHandlerContext,ChannelPipeline这三者的关系很特别，相辅相成，一个ChannelPipeline中可以有多个ChannelHandler实例，而每一个ChannelHandler实例与ChannelPipeline之间的桥梁就是ChannelHandlerContext实例，如图所示：</p>
+<p><img src="https://img-blog.csdn.net/20160504161903129?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>看图就知道，ChannelHandlerContext的重要性了，如果你获取到了ChannelHandlerContext的实例的话，你可以获取到你想要的一切，你可以根据ChannelHandlerContext执行ChannelHandler中的方法，我们举个例子来说，我们可以看下ChannelHandlerContext部分API:</p>
+<p><img src="https://img-blog.csdn.net/20160504165756603?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>这几个API都是使用比较频繁的，都是调用当前handler之后同一类型的channel中的某个方法，这里的同一类型指的是同一个方向，比如inbound调用inbound，outbound调用outbound类型的channel，一般来说，都是一个channel的ChannnelActive方法中调用fireChannelActive来触发调用下一个handler中的ChannelActive方法</p>
+<p>我们举例来说，我们修改Helloworld版中的部分代码，在客户端中的channel中修改一下代码</p>
+<p>首先我们修改一下bootstrap的启动类代码：</p>
+<p><strong>[html]</strong> <a href="https://blog.csdn.net/linuu/article/details/51315373#" target="_blank" rel="noopener">view plain</a> <a href="https://blog.csdn.net/linuu/article/details/51315373#" target="_blank" rel="noopener">copy</a></p>
+<ol>
+<li>try {  </li>
+<li>​            Bootstrap b = new Bootstrap();  </li>
+<li>​            b.group(group)  </li>
+<li>​             .channel(NioSocketChannel.class)  </li>
+<li>​             .option(ChannelOption.TCP_NODELAY, true)  </li>
+<li>​             .handler(new ChannelInitializer<socketchannel>() {  </socketchannel></li>
+<li>​                 @Override  </li>
+<li>​                 public void initChannel(SocketChannel ch) throws Exception {  </li>
+<li>​                     ChannelPipeline p = ch.pipeline();  </li>
+<li>​                     p.addLast(“decoder”, new StringDecoder());  </li>
+<li>​                     p.addLast(“encoder”, new StringEncoder());  </li>
+<li>​                     p.addLast(new BaseClient1Handler());  </li>
+<li>​                     p.addLast(new BaseClient2Handler());  </li>
+<li>​                 }  </li>
+<li>​             });  </li>
+<li></li>
+<li>​            ChannelFuture future = b.connect(HOST, PORT).sync();  </li>
+<li>​            future.channel().writeAndFlush(“Hello Netty Server ,I am a common client”);  </li>
+<li>​            future.channel().closeFuture().sync();  </li>
+<li>​        } finally {  </li>
+<li>​            group.shutdownGracefully();  </li>
+<li>​        }  </li>
+</ol>
+<p>我们在channelhandler链中加了两个自定义的BaseClient1Handler和BaseClient2Handler的处理器</p>
+<p>BaseClient1Handler的方法也很简单：</p>
+<p>BaseClient1Handler.java</p>
+<p><strong>[java]</strong> <a href="https://blog.csdn.net/linuu/article/details/51315373#" target="_blank" rel="noopener">view plain</a> <a href="https://blog.csdn.net/linuu/article/details/51315373#" target="_blank" rel="noopener">copy</a></p>
+<ol>
+<li>package com.lyncc.netty.component.channelhandler;  </li>
+<li></li>
+<li>import io.netty.channel.ChannelHandlerContext;  </li>
+<li>import io.netty.channel.ChannelInboundHandlerAdapter;  </li>
+<li></li>
+<li>/** </li>
+<li><ul>
+<li></li>
+</ul>
+</li>
+<li><ul>
+<li>@author bazingaLyncc </li>
+</ul>
+</li>
+<li><ul>
+<li>描述：客户端的第一个自定义的inbound处理器 </li>
+</ul>
+</li>
+<li><ul>
+<li>时间  2016年5月3日 </li>
+</ul>
+</li>
+<li>*/  </li>
+<li>public class BaseClient1Handler extends ChannelInboundHandlerAdapter{  </li>
+<li>​      </li>
+<li>​    @Override  </li>
+<li>​    public void channelActive(ChannelHandlerContext ctx) throws Exception {  </li>
+<li>​        System.out.println(“BaseClient1Handler channelActive”);  </li>
+<li>//        ctx.fireChannelActive();  </li>
+<li>​    }  </li>
+<li>​      </li>
+<li>​    @Override  </li>
+<li>​    public void channelInactive(ChannelHandlerContext ctx) throws Exception {  </li>
+<li>​        System.out.println(“BaseClient1Handler channelInactive”);  </li>
+<li>​    }  </li>
+<li></li>
+<li>}  </li>
+</ol>
+<p>BaseClient2Handler.java</p>
+<p><strong>[java]</strong> <a href="https://blog.csdn.net/linuu/article/details/51315373#" target="_blank" rel="noopener">view plain</a> <a href="https://blog.csdn.net/linuu/article/details/51315373#" target="_blank" rel="noopener">copy</a></p>
+<ol>
+<li>package com.lyncc.netty.component.channelhandler;  </li>
+<li></li>
+<li>import io.netty.channel.ChannelHandlerContext;  </li>
+<li>import io.netty.channel.ChannelInboundHandlerAdapter;  </li>
+<li></li>
+<li>/** </li>
+<li><ul>
+<li></li>
+</ul>
+</li>
+<li><ul>
+<li>@author bazingaLyncc </li>
+</ul>
+</li>
+<li><ul>
+<li>描述：客户端的第二个自定义的inbound处理器 </li>
+</ul>
+</li>
+<li><ul>
+<li>时间  2016年5月3日 </li>
+</ul>
+</li>
+<li>*/  </li>
+<li>public class BaseClient2Handler extends ChannelInboundHandlerAdapter{  </li>
+<li>​      </li>
+<li>​    @Override  </li>
+<li>​    public void channelActive(ChannelHandlerContext ctx) throws Exception {  </li>
+<li>​        System.out.println(“BaseClient2Handler Active”);  </li>
+<li>​    }  </li>
+<li>​      </li>
+<li>​     </li>
+<li></li>
+<li>}  </li>
+</ol>
+<p>其他的代码不修改的，我们先启动服务器端，然后启动客户端，你会发现控制台打印了：</p>
+<p><img src="https://img-blog.csdn.net/20160504173625107?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>不会打印BaseClient2Handler类中channelActive方法中的输出语句，如果你想要打印，你可以将BaseClient1Handler中的channelActive的ctx.fireChannelActive()注释去掉。重新运行：</p>
+<p><img src="https://img-blog.csdn.net/20160504173922899?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>也就是说如果一个channelPipeline中有多个channelHandler时，且这些channelHandler中有同样的方法时，例如这里的channelActive方法，只会调用处在第一个的channelHandler中的channelActive方法，如果你想要调用后续的channelHandler的同名的方法就需要调用以“fire”为开头的方法了，这样做很灵活</p>
+<p>目前来说这样做的好处：</p>
+<p>1）每一个handler只需要关注自己要处理的方法，如果你不关注channelActive方法时，你自定义的channelhandler就不需要重写channelActive方法</p>
+<p>2）异常处理，如果 exceptionCaught方法每个handler都重写了，只需有一个类捕捉到然后做处理就可以了，不需要每个handler都处理一遍</p>
+<p>3）灵活性。例如如下图所示：</p>
+<p><img src="https://img-blog.csdn.net/20160504175109763?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt="img"></p>
+<p>如图所示在业务逻辑处理中，也许左侧第一个ChannelHandler根本不需要管理某个业务逻辑，但是从第二个ChannelHandler就需要关注处理某个业务需求了，那么就可以很灵活地从第二个ChannelHandler开始处理业务，不需要从channel中的第一个ChannelHandler开始处理，这样会使代码显得让人看不懂~</p>
+<p>初步看懂的ChannelHandler,ChannelHandlerContext,ChannelPipeline之间的关系就是如上总结的</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/19/Google-Guava-localcache本地缓存实例/" rel="next" title="Google Guava--localcache本地缓存实例">
+                <i class="fa fa-chevron-left"></i> Google Guava--localcache本地缓存实例
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Duke Du</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Duke Du</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

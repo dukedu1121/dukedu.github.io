@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、思考和猜想首先看一下三种基于时间的清理或刷新缓存数据的方式： expireAfterAccess: 当缓存项在指定的时间段内没有被读或写就会被回收。同步执行 expireAfterWrite：当缓存项在指定的时间段内没有更新就会被回收。同步执行 refreshAfterWrite：当缓存项上一次更新操作之后的多久会被刷新。 异步执行   考虑到时效性，我们可以使用expireAfterWrit">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Google Guava--localcache本地缓存实例">
+<meta property="og:url" content="http://yoursite.com/2018/04/19/Google-Guava-localcache本地缓存实例/index.html">
+<meta property="og:site_name" content="Duke Du的博客">
+<meta property="og:description" content="一、思考和猜想首先看一下三种基于时间的清理或刷新缓存数据的方式： expireAfterAccess: 当缓存项在指定的时间段内没有被读或写就会被回收。同步执行 expireAfterWrite：当缓存项在指定的时间段内没有更新就会被回收。同步执行 refreshAfterWrite：当缓存项上一次更新操作之后的多久会被刷新。 异步执行   考虑到时效性，我们可以使用expireAfterWrit">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://wiki.corp.vipshop.com/download/attachments/158963382/scherefresh.png?version=1&modificationDate=1471225264000&api=v2">
+<meta property="og:image" content="http://wiki.corp.vipshop.com/download/attachments/158963382/refre.png?version=1&modificationDate=1471225268000&api=v2">
+<meta property="og:updated_time" content="2018-04-19T02:49:04.764Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Google Guava--localcache本地缓存实例">
+<meta name="twitter:description" content="一、思考和猜想首先看一下三种基于时间的清理或刷新缓存数据的方式： expireAfterAccess: 当缓存项在指定的时间段内没有被读或写就会被回收。同步执行 expireAfterWrite：当缓存项在指定的时间段内没有更新就会被回收。同步执行 refreshAfterWrite：当缓存项上一次更新操作之后的多久会被刷新。 异步执行   考虑到时效性，我们可以使用expireAfterWrit">
+<meta name="twitter:image" content="http://wiki.corp.vipshop.com/download/attachments/158963382/scherefresh.png?version=1&modificationDate=1471225264000&api=v2">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/19/Google-Guava-localcache本地缓存实例/"/>
+
+
+
+
+
+  <title>Google Guava--localcache本地缓存实例 | Duke Du的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Duke Du的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/19/Google-Guava-localcache本地缓存实例/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Duke Du">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Duke Du的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Google Guava--localcache本地缓存实例</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-19T10:41:36+08:00">
+                2018-04-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>一、思考和猜想</strong><br>首先看一下三种基于时间的清理或刷新缓存数据的方式：</p>
+<p>expireAfterAccess: 当缓存项在指定的时间段内没有被读或写就会被回收。同步执行</p>
+<p>expireAfterWrite：当缓存项在指定的时间段内没有更新就会被回收。同步执行</p>
+<p>refreshAfterWrite：当缓存项上一次更新操作之后的多久会被刷新。 异步执行</p>
+<p>  考虑到时效性，我们可以使用expireAfterWrite，使每次更新之后的指定时间让缓存失效，然后重新加载缓存。guava cache会严格限制只有1个加载操作，这样会很好地防止缓存失效的瞬间大量请求穿透到后端引起雪崩效应。</p>
+<p>​     然而，通过分析源码，guava cache在限制只有1个加载操作时进行加锁，其他请求必须阻塞等待这个加载操作完成；而且，在加载完成之后，其他请求的线程会逐一获得锁，去判断是否已被加载完成，每个线程必须轮流地走一个“”获得锁，获得值，释放锁“”的过程，这样性能会有一些损耗。这里由于我们计划本地缓存1秒，所以频繁的过期和加载，锁等待等过程会让性能有较大的损耗。</p>
+<p>​     因此我们考虑使用refreshAfterWrite。refreshAfterWrite的特点是，在refresh的过程中，严格限制只有1个重新加载操作，而其他查询先返回旧值，这样有效地可以减少等待和锁争用，所以refreshAfterWrite会比expireAfterWrite性能好。但是它也有一个缺点，因为到达指定时间后，它不能严格保证所有的查询都获取到新值。了解过guava cache的定时失效（或刷新）原来的同学都知道，guava cache并没使用额外的线程去做定时清理和加载的功能，而是依赖于查询请求。在查询的时候去比对上次更新的时间，如超过指定时间则进行加载或刷新。所以，如果使用refreshAfterWrite，在吞吐量很低的情况下，如很长一段时间内没有查询之后，发生的查询有可能会得到一个旧值（这个旧值可能来自于很长时间之前），这将会引发问题。</p>
+<p>​     可以看出refreshAfterWrite和expireAfterWrite两种方式各有优缺点，各有使用场景。那么能否在refreshAfterWrite和expireAfterWrite找到一个折中？比如说控制缓存每1s进行refresh，如果超过2s没有访问，那么则让缓存失效，下次访问时不会得到旧值，而是必须得待新值加载。由于guava官方文档没有给出一个详细的解释，查阅一些网上资料也没有得到答案，因此只能对源码进行分析，寻找答案。经过分析，当同时使用两者的时候，可以达到预想的效果，这真是一个好消息呐！</p>
+<p><strong>二、源码分析</strong></p>
+<p>通过追踪LoadingCache的get方法源码，发现最终会调用以下核心方法，下面贴出源码：</p>
+<p> com.google.common.cache.LocalCache.Segment.get方法：</p>
+<p>​        这个缓冲的get方法，编号1是判断是否有存活值，即根据expireAfterAccess和expireAfterWrite进行判断是否过期，如果过期，则value为null，执行编号3,。编号2指不过期的情况下，根据refreshAfterWrite判断是否需要refresh。而编号3是需要进行加载（load而非reload），原因是没有存活值，可能因为过期，可能根本就没有过该值。</p>
+<p>​     从段代码来看，在get的时候，是先判断过期，再判断refresh，所以我们可以通过设置refreshAfterWrite为1s，将expireAfterWrite 设为2s，当访问频繁的时候，会在每秒都进行refresh，而当超过2s没有访问，下一次访问必须load新值。</p>
+<p>​     我们继续顺藤摸瓜，顺带看看load和refresh分别都做了什么事情，验证以下上面说的理论。</p>
+<p>下面看看 com.google.common.cache.LocalCache.Segment.lockedGetOrLoad方法：     </p>
+<p>这个方法有点长，限于篇幅，没有贴出全部代码，关键步骤有7步。</p>
+<p>1.获得锁</p>
+<p>2.获得key对应的valueReference</p>
+<p>3.判断是否该缓存值正在loading，如果loading，则不再进行load操作（通过设置createNewEntry为false），后续会等待获取新值。</p>
+<p>4.如果不是在loading，判断是否已经有新值了（被其他请求load完了），如果是则返回新值</p>
+<p>5.准备loading，设置为loadingValueReference。loadingValueReference 会使其他请求在步骤3的时候会发现正在loding。</p>
+<p>6。释放锁。</p>
+<p>7.如果真的需要load，则进行load操作。</p>
+<p>通过分析发现，只会有1个load操作，其他get会先阻塞住，验证了之前的理论。</p>
+<p>下面看看com.google.common.cache.LocalCache.Segment.scheduleRefresh方法：</p>
+<p><img src="http://wiki.corp.vipshop.com/download/attachments/158963382/scherefresh.png?version=1&amp;modificationDate=1471225264000&amp;api=v2" alt="img"></p>
+<p>1.判断是否需要refresh，且当前非loading状态，如果是则进行refresh操作，并返回新值。</p>
+<p>2.<strong>步骤2是我加上去的</strong>，为后面的测试做准备。如果需要refresh，但是有其他线程正在对该值进行refreshing，则打印，最终会返回旧值。</p>
+<p>继续深入步骤1中调用的refresh方法：</p>
+<p><img src="http://wiki.corp.vipshop.com/download/attachments/158963382/refre.png?version=1&amp;modificationDate=1471225268000&amp;api=v2" alt="img"></p>
+<p>1.插入loadingValueReference，表示该值正在loading，其他请求根据此判断是需要进行refresh还是返回旧值。insertLoadingValueReference里有加锁操作，确保只有1个refresh穿透到后端。限于篇幅，这里不再展开。但是，这里加锁的范围比load时候加锁的范围要小，在expire-&gt;load的过程，所有的get一旦知道expire，则需要获得锁，直到得到新值为止，阻塞的影响范围会是从expire到load到新值为止；而refresh-&gt;reload的过程，一旦get发现需要refresh，会先判断是否有loading，再去获得锁，然后释放锁之后再去reload，阻塞的范围只是insertLoadingValueReference的一个小对象的new和set操作，几乎可以忽略不计，所以这是之前说refresh比expire高效的原因之一。</p>
+<p>2.进行refresh操作，这里不对loadAsync进行展开，它调用了CacheLoader的reload方法，reload方法支持重载去实现异步的加载，而当前线程返回旧值，这样性能会更好，其默认是同步地调用了CacheLoader的load方法实现。</p>
+<p>​     到这里，我们知道了refresh和expire的区别了吧！refresh执行reload，而expire后会重新执行load，和初始化时一样。</p>
+<p>三、<strong>测试和验证</strong></p>
+<p>​     在上面贴出的源码，大家应该注意到一些System.out.println语句，这些是我加上去的，便于后续进行测试验证。现在就来对刚刚的分析进行程序验证。</p>
+<p>​     贴出测试的源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line">packagecom.example.demo;  </span><br><span class="line">   </span><br><span class="line">   </span><br><span class="line">importjava.util.concurrent.CountDownLatch;  </span><br><span class="line">importjava.util.concurrent.CyclicBarrier;  </span><br><span class="line">importjava.util.concurrent.ExecutionException;  </span><br><span class="line">importjava.util.concurrent.TimeUnit;  </span><br><span class="line">   </span><br><span class="line">   </span><br><span class="line">importcom.google.common.cache.CacheBuilder;  </span><br><span class="line">importcom.google.common.cache.CacheLoader;  </span><br><span class="line">importcom.google.common.cache.LoadingCache ;  </span><br><span class="line">importcom.google.common.util.concurrent.Futures;  </span><br><span class="line">importcom.google.common.util.concurrent.ListenableFuture;  </span><br><span class="line">   </span><br><span class="line">   </span><br><span class="line">publicclassConcurrentTest &#123;  </span><br><span class="line">        </span><br><span class="line">     privatestaticfinal <span class="keyword">int</span> CONCURRENT_NUM = <span class="number">10</span>;<span class="comment">//并发数  </span></span><br><span class="line">        </span><br><span class="line">     privatevolatilestatic <span class="keyword">int</span> value = <span class="number">1</span>;  </span><br><span class="line">        </span><br><span class="line">     privatestaticLoadingCache &lt;String, String&gt; cache = CacheBuilder.newBuilder().maximumSize(<span class="number">1000</span>)  </span><br><span class="line">           .expireAfterWrite(<span class="number">5</span>, TimeUnit. SECONDS)  </span><br><span class="line">           .refreshAfterWrite(<span class="number">1</span>, TimeUnit. SECONDS)  </span><br><span class="line">           .build(newCacheLoader&lt;String, String&gt;() &#123;  </span><br><span class="line">                 <span class="function">publicString <span class="title">load</span><span class="params">(String key)</span> throwsInterruptedException </span>&#123;  </span><br><span class="line">                     System. out.println( <span class="string">"load by "</span> + Thread.currentThread().getName());  </span><br><span class="line">                      returncreateValue(key);  </span><br><span class="line">                &#125;  </span><br><span class="line">   </span><br><span class="line">   </span><br><span class="line">                 <span class="meta">@Override</span>  </span><br><span class="line">                 <span class="function">publicListenableFuture&lt;String&gt; <span class="title">reload</span><span class="params">(String key, String oldValue)</span>  </span></span><br><span class="line"><span class="function">                            throwsException </span>&#123;  </span><br><span class="line">                     System. out.println( <span class="string">"reload by "</span> + Thread.currentThread().getName());  </span><br><span class="line">                      returnFutures.immediateFuture(createValue(key ));  </span><br><span class="line">                &#125;  </span><br><span class="line">           &#125;  </span><br><span class="line">     );  </span><br><span class="line">              </span><br><span class="line">     <span class="comment">//创建value  </span></span><br><span class="line">     <span class="function">privatestaticString <span class="title">createValue</span><span class="params">(String key)</span> throwsInterruptedException</span>&#123;  </span><br><span class="line">           Thread. sleep(<span class="number">1000L</span>);<span class="comment">//让当前线程sleep 1秒，是为了测试load和reload时候的并发特性  </span></span><br><span class="line">            returnString. valueOf(value++);  </span><br><span class="line">     &#125;  </span><br><span class="line">        </span><br><span class="line">     <span class="function">publicstaticvoid <span class="title">main</span><span class="params">(String[] args)</span> throwsInterruptedException, ExecutionException </span>&#123;  </span><br><span class="line">            CyclicBarrier barrier = newCyclicBarrier(CONCURRENT_NUM );  </span><br><span class="line">            CountDownLatch latch = newCountDownLatch(CONCURRENT_NUM );  </span><br><span class="line">            <span class="keyword">for</span>(inti = <span class="number">0</span>; i &lt; CONCURRENT_NUM; i++) &#123;  </span><br><span class="line">            finalClientRunnable runnable = newClientRunnable(barrier, latch );  </span><br><span class="line">            Thread thread = newThread( runnable, <span class="string">"client-"</span>+ i);  </span><br><span class="line">            thread.start();  </span><br><span class="line">        &#125;  </span><br><span class="line">              </span><br><span class="line">            <span class="comment">//测试一段时间不访问后是否执行expire而不是refresh  </span></span><br><span class="line">            latch.await();  </span><br><span class="line">           Thread. sleep(<span class="number">5100L</span>);  </span><br><span class="line">           System. out.println( <span class="string">"\n超过expire时间未读之后..."</span>);  </span><br><span class="line">           System. out.println(Thread. currentThread().getName() + <span class="string">",val:"</span>+ cache .get(<span class="string">"key"</span>));  </span><br><span class="line">     &#125;  </span><br><span class="line">        </span><br><span class="line">     staticclassClientRunnable implementsRunnable&#123;  </span><br><span class="line">              </span><br><span class="line">           CyclicBarrier barrier;  </span><br><span class="line">           CountDownLatch latch;  </span><br><span class="line">              </span><br><span class="line">            publicClientRunnable(CyclicBarrier barrier, CountDownLatch latch)&#123;  </span><br><span class="line">                 <span class="keyword">this</span>. barrier = barrier;  </span><br><span class="line">                 <span class="keyword">this</span>. latch = latch;  </span><br><span class="line">           &#125;  </span><br><span class="line">              </span><br><span class="line">            publicvoidrun() &#123;  </span><br><span class="line">                 <span class="keyword">try</span>&#123;  </span><br><span class="line">                      barrier.await();  </span><br><span class="line">                     Thread. sleep((<span class="keyword">long</span>)(Math.random()*<span class="number">4000</span>));<span class="comment">//每个client随机睡眠，为了充分测试refresh和load  </span></span><br><span class="line">                     System. out.println(Thread. currentThread().getName() + <span class="string">",val:"</span>+ cache .get(<span class="string">"key"</span>));  </span><br><span class="line">                      latch.countDown();  </span><br><span class="line">                &#125;<span class="keyword">catch</span>(Exception e) &#123;  </span><br><span class="line">                      e.printStackTrace();  </span><br><span class="line">                &#125;  </span><br><span class="line">           &#125;  </span><br><span class="line">              </span><br><span class="line">     &#125;  </span><br><span class="line">   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果：</p>
+<p>验证结果和预期一致：</p>
+<p>1.在缓存还没初始化的时候，client-1最新获得了load锁，进行load操作，在进行load的期间，其他client也到达进入load过程，阻塞，等待client-1释放锁，再依次获得锁。最终只load by client-1。</p>
+<p>2.当超过了refreshAfterWrite设定的时间之内没有访问，需要进行refresh，client-5进行 refresh，在这个过程中，其他client并没有获得锁，而是直接查询旧值，直到refresh后才得到新值，过渡平滑。</p>
+<p>3.在超过了expireAfterWrite设定的时间内没有访问，main线程在访问的时候，值已经过期，需要进行load操作，而不会得到旧值。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/17/高并发的核心技术-幂等的实现方案/" rel="next" title="高并发的核心技术-幂等的实现方案">
+                <i class="fa fa-chevron-left"></i> 高并发的核心技术-幂等的实现方案
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/19/Netty-ChannelHandler-ChannelHandlerContext-ChannelPipeline/" rel="prev" title="Netty--ChannelHandler,ChannelHandlerContext,ChannelPipeline">
+                Netty--ChannelHandler,ChannelHandlerContext,ChannelPipeline <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Duke Du</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Duke Du</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
