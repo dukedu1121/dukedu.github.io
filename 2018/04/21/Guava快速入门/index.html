@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Guava工程包含了若干被Google的 Java项目广泛依赖 的核心库，例如：集合 [collections] 、缓存 [caching] 、原生类型支持 [primitives support] 、并发库 [concurrency libraries] 、通用注解 [common annotations] 、字符串处理 [string processing] 、I/O 等等。 guava类似A">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Guava快速入门">
+<meta property="og:url" content="http://yoursite.com/2018/04/21/Guava快速入门/index.html">
+<meta property="og:site_name" content="Duke Du的博客">
+<meta property="og:description" content="Guava工程包含了若干被Google的 Java项目广泛依赖 的核心库，例如：集合 [collections] 、缓存 [caching] 、原生类型支持 [primitives support] 、并发库 [concurrency libraries] 、通用注解 [common annotations] 、字符串处理 [string processing] 、I/O 等等。 guava类似A">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-04-21T10:40:02.652Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Guava快速入门">
+<meta name="twitter:description" content="Guava工程包含了若干被Google的 Java项目广泛依赖 的核心库，例如：集合 [collections] 、缓存 [caching] 、原生类型支持 [primitives support] 、并发库 [concurrency libraries] 、通用注解 [common annotations] 、字符串处理 [string processing] 、I/O 等等。 guava类似A">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/04/21/Guava快速入门/"/>
+
+
+
+
+
+  <title>Guava快速入门 | Duke Du的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Duke Du的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/21/Guava快速入门/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Duke Du">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Duke Du的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Guava快速入门</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-21T18:39:36+08:00">
+                2018-04-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Guava工程包含了若干被Google的 Java项目广泛依赖 的核心库，例如：集合 [collections] 、缓存 [caching] 、原生类型支持 [primitives support] 、并发库 [concurrency libraries] 、通用注解 [common annotations] 、字符串处理 [string processing] 、I/O 等等。</p>
+<p>guava类似Apache Commons工具集</p>
+<h3 id="基本工具包Base"><a href="#基本工具包Base" class="headerlink" title="基本工具包Base"></a>基本工具包Base</h3><h4 id="Optional"><a href="#Optional" class="headerlink" title="Optional"></a>Optional</h4><p>guava的Optional类似于Java 8新增的Optional类，都是用来处理null的，不过guava的是抽象类，其实现类为Absent和Present，而java.util的是final类。其中一部分方法名是相同的。</p>
+<p>Guava用Optional表示可能为null的T类型引用。一个Optional实例可能包含非null的引用（我们称之为引用存在），也可能什么也不包括（称之为引用缺失）。它从不说包含的是null值，而是用存在或缺失来表示。但Optional从不会包含null值引用。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">public class OptionalDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       Integer value1=null;</span><br><span class="line">       Integer value2=10;</span><br><span class="line">       /*创建指定引用的Optional实例，若引用为null则快速失败返回absent()</span><br><span class="line">         absent()创建引用缺失的Optional实例</span><br><span class="line">        */</span><br><span class="line">       Optional&lt;Integer&gt; a=Optional.fromNullable(value1);</span><br><span class="line">       Optional&lt;Integer&gt; b=Optional.of(value2); //返回包含给定的非空引用Optional实例</span><br><span class="line">       System.out.println(sum(a,b));</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   private static Integer sum(Optional&lt;Integer&gt; a,Optional&lt;Integer&gt; b)&#123;</span><br><span class="line">       //isPresent():如果Optional包含非null的引用（引用存在），返回true</span><br><span class="line">       System.out.println(&quot;First param is present: &quot;+a.isPresent());</span><br><span class="line">       System.out.println(&quot;Second param is present: &quot;+b.isPresent());</span><br><span class="line">       Integer value1=a.or(0);  //返回Optional所包含的引用,若引用缺失,返回指定的值</span><br><span class="line">       Integer value2=b.get(); //返回所包含的实例,它必须存在,通常在调用该方法时会调用isPresent()判断是否为null</span><br><span class="line">       return value1+value2;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">1234567891011121314151617181920212223</span><br></pre></td></tr></table></figure>
+<h4 id="Preconditions"><a href="#Preconditions" class="headerlink" title="Preconditions"></a>Preconditions</h4><p>前置条件Preconditions提供静态方法来检查方法或构造函数，被调用是否给定适当的参数。它检查的先决条件。其方法失败抛出IllegalArgumentException。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">public class PreconditionsDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       try &#123;</span><br><span class="line">           getValue(5);</span><br><span class="line">       &#125; catch (IndexOutOfBoundsException e)&#123;</span><br><span class="line">           System.out.println(e.getMessage());</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       try &#123;</span><br><span class="line">           sum(4,null);</span><br><span class="line">       &#125; catch (NullPointerException e)&#123;</span><br><span class="line">           System.out.println(e.getMessage());</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       try &#123;</span><br><span class="line">           sqrt(-1);</span><br><span class="line">       &#125; catch (IllegalArgumentException e)&#123;</span><br><span class="line">           System.out.println(e.getMessage());</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   private static double sqrt(double input)&#123;</span><br><span class="line">       Preconditions.checkArgument(input&gt;0.0,</span><br><span class="line">               &quot;Illegal Argument passed: Negative value %s.&quot;,input);</span><br><span class="line">       return Math.sqrt(input);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   private static int sum(Integer a,Integer b)&#123;</span><br><span class="line">       a=Preconditions.checkNotNull(a,</span><br><span class="line">               &quot;Illegal Argument passed: First parameter is Null.&quot;);</span><br><span class="line">       b=Preconditions.checkNotNull(b,</span><br><span class="line">               &quot;Illegal Argument passed: First parameter is Null.&quot;);</span><br><span class="line">       return a+b;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   private static int getValue(int input)&#123;</span><br><span class="line">       int[] data=&#123;1,2,3,4,5&#125;;</span><br><span class="line">       int index=Preconditions.checkElementIndex(input,data.length,</span><br><span class="line">               &quot;Illegal Argument passed: Invalid index.&quot;);</span><br><span class="line">       return data[index];</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">123456789101112131415161718192021222324252627282930313233343536373839404142434445</span><br></pre></td></tr></table></figure>
+<h4 id="Joiner"><a href="#Joiner" class="headerlink" title="Joiner"></a>Joiner</h4><p>Joiner 提供了各种方法来处理字符串加入操作，对象等。</p>
+<p>Joiner的实例不可变的，因此是线程安全的。</p>
+<blockquote>
+<p>Warning: joiner instances are always immutable; a configuration method such as { useForNull} has no effect on the instance it is invoked on! You must store and use the new joiner instance returned by the method. This makes joiners thread-safe, and safe to store as {@code static final} constants.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&gt;    &#123;@code </span><br><span class="line">&gt;</span><br><span class="line">&gt;     // Bad! Do not do this! </span><br><span class="line">&gt;</span><br><span class="line">&gt;     Joiner joiner = Joiner.on(‘,’); </span><br><span class="line">&gt;</span><br><span class="line">&gt;     joiner.skipNulls(); // does nothing!分开写跳过null就不起作用了，因为实例不可改变 </span><br><span class="line">&gt;</span><br><span class="line">&gt;     return joiner.join(“wrong”, null, “wrong”);&#125;</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<blockquote>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class JoinerDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       /*</span><br><span class="line">         on:制定拼接符号，如：test1-test2-test3 中的 “-“ 符号</span><br><span class="line">         skipNulls()：忽略NULL,返回一个新的Joiner实例</span><br><span class="line">         useForNull(“Hello”)：NULL的地方都用字符串”Hello”来代替</span><br><span class="line">        */</span><br><span class="line">       StringBuilder sb=new StringBuilder();</span><br><span class="line">       Joiner.on(&quot;,&quot;).skipNulls().appendTo(sb,&quot;Hello&quot;,&quot;guava&quot;);</span><br><span class="line">       System.out.println(sb);</span><br><span class="line">       System.out.println(Joiner.on(&quot;,&quot;).useForNull(&quot;none&quot;).join(1,null,3));</span><br><span class="line">       System.out.println(Joiner.on(&quot;,&quot;).skipNulls().join(Arrays.asList(1,2,3,4,null,6)));</span><br><span class="line">       Map&lt;String,String&gt;map=new HashMap&lt;&gt;();</span><br><span class="line">       map.put(&quot;key1&quot;,&quot;value1&quot;);</span><br><span class="line">       map.put(&quot;key2&quot;,&quot;value2&quot;);</span><br><span class="line">       map.put(&quot;key3&quot;,&quot;value3&quot;);</span><br><span class="line">       System.out.println(Joiner.on(&quot;,&quot;).withKeyValueSeparator(&quot;=&quot;).join(map));</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">123456789101112131415161718192021</span><br></pre></td></tr></table></figure>
+<h4 id="Splitter"><a href="#Splitter" class="headerlink" title="Splitter"></a>Splitter</h4><p>Splitter 能够将一个字符串按照指定的分隔符拆分成可迭代遍历的字符串集合，Iterable</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public class SplitterDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       /*</span><br><span class="line">         on():指定分隔符来分割字符串</span><br><span class="line">         limit():当分割的子字符串达到了limit个时则停止分割</span><br><span class="line">         fixedLength():根据长度来拆分字符串</span><br><span class="line">         trimResults():去掉子串中的空格</span><br><span class="line">         omitEmptyStrings():去掉空的子串</span><br><span class="line">         withKeyValueSeparator():要分割的字符串中key和value间的分隔符,分割后的子串中key和value间的分隔符默认是=</span><br><span class="line">        */</span><br><span class="line">       System.out.println(Splitter.on(&quot;,&quot;).limit(3).trimResults().split(&quot; a,  b,  c,  d&quot;));//[ a, b, c,d]</span><br><span class="line">       System.out.println(Splitter.fixedLength(3).split(&quot;1 2 3&quot;));//[1 2,  3]</span><br><span class="line">       System.out.println(Splitter.on(&quot; &quot;).omitEmptyStrings().splitToList(&quot;1  2 3&quot;));</span><br><span class="line">       System.out.println(Splitter.on(&quot;,&quot;).omitEmptyStrings().split(&quot;1,,,,2,,,3&quot;));//[1, 2, 3]</span><br><span class="line">       System.out.println(Splitter.on(&quot; &quot;).trimResults().split(&quot;1 2 3&quot;)); //[1, 2, 3],默认的连接符是,</span><br><span class="line">       System.out.println(Splitter.on(&quot;;&quot;).withKeyValueSeparator(&quot;:&quot;).split(&quot;a:1;b:2;c:3&quot;));//&#123;a=1, b=2, c=3&#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">1234567891011121314151617181920</span><br></pre></td></tr></table></figure>
+<h4 id="Objects"><a href="#Objects" class="headerlink" title="Objects"></a>Objects</h4><p>java7及以后的版本建议使用jdk中的Objects类</p>
+<h3 id="EventBus"><a href="#EventBus" class="headerlink" title="EventBus"></a>EventBus</h3><p>Guava为我们提供了事件总线EventBus库，它是事件发布-订阅模式的实现，让我们能在领域驱动设计(DDD)中以事件的弱引用本质对我们的模块和领域边界很好的解耦设计。</p>
+<p>Guava为我们提供了同步事件EventBus和异步实现AsyncEventBus两个事件总线，他们都不是单例的。</p>
+<p>Guava发布的事件默认不会处理线程安全的，但我们可以标注@AllowConcurrentEvents来保证其线程安全</p>
+<p>如果Listener A监听Event A, 而Event A有一个子类Event B, 此时Listener A将同时接收Event A和B消息</p>
+<p>事件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">//Guava 发布-订阅模式中传递的事件,是一个普通的POJO类</span><br><span class="line">public class OrderEvent &#123;  //事件</span><br><span class="line">   private String message;</span><br><span class="line"></span><br><span class="line">   public OrderEvent(String message) &#123;</span><br><span class="line">       this.message = message;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   public String getMessage() &#123;</span><br><span class="line">       return message;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">1234567891011121314</span><br></pre></td></tr></table></figure>
+<p>订阅</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">public class EventListener &#123; //订阅者</span><br><span class="line"></span><br><span class="line">   //@Subscribe保证有且只有一个输入参数,如果你需要订阅某种类型的消息,只需要在指定的方法上加上@Subscribe注解即可</span><br><span class="line">   @Subscribe</span><br><span class="line">   public void listen(OrderEvent event)&#123;</span><br><span class="line">       System.out.println(&quot;receive message: &quot;+event.getMessage());</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   /*</span><br><span class="line">     一个subscriber也可以同时订阅多个事件</span><br><span class="line">     Guava会通过事件类型来和订阅方法的形参来决定到底调用subscriber的哪个订阅方法</span><br><span class="line">    */</span><br><span class="line">   @Subscribe</span><br><span class="line">   public void listen(String message)&#123;</span><br><span class="line">       System.out.println(&quot;receive message: &quot;+message);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">12345678910111213141516171819</span><br></pre></td></tr></table></figure>
+<p>多个订阅者</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class MultiEventListener &#123;</span><br><span class="line"></span><br><span class="line">   @Subscribe</span><br><span class="line">   public void listen(OrderEvent event)&#123;</span><br><span class="line">       System.out.println(&quot;receive msg: &quot;+event.getMessage());</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   @Subscribe</span><br><span class="line">   public void listen(String message)&#123;</span><br><span class="line">       System.out.println(&quot;receive msg: &quot;+message);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">1234567891011121314</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class EventBusDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       EventBus eventBus=new EventBus(&quot;jack&quot;);</span><br><span class="line">       /*</span><br><span class="line">         如果多个subscriber订阅了同一个事件,那么每个subscriber都将收到事件通知</span><br><span class="line">         并且收到事件通知的顺序跟注册的顺序保持一致</span><br><span class="line">        */</span><br><span class="line">       eventBus.register(new EventListener()); //注册订阅者</span><br><span class="line">       eventBus.register(new MultiEventListener());</span><br><span class="line">       eventBus.post(new OrderEvent(&quot;hello&quot;)); //发布事件</span><br><span class="line">       eventBus.post(new OrderEvent(&quot;world&quot;));</span><br><span class="line">       eventBus.post(&quot;!&quot;);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">12345678910111213141516</span><br></pre></td></tr></table></figure>
+<p><strong>DeadEvent</strong></p>
+<p>如果EventBus发送的消息都不是订阅者关心的称之为Dead Event。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public class DeadEventListener &#123;</span><br><span class="line">   boolean isDelivered=true;</span><br><span class="line"></span><br><span class="line">   @Subscribe</span><br><span class="line">   public void listen(DeadEvent event)&#123;</span><br><span class="line">       isDelivered=false;</span><br><span class="line">       System.out.println(event.getSource().getClass()+&quot;  &quot;+event.getEvent()); //source通常是EventBus</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   public boolean isDelivered() &#123;</span><br><span class="line">       return isDelivered;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">123456789101112131415</span><br></pre></td></tr></table></figure>
+<h3 id="Collection"><a href="#Collection" class="headerlink" title="Collection"></a>Collection</h3><h4 id="不可变集合"><a href="#不可变集合" class="headerlink" title="不可变集合"></a>不可变集合</h4><p>不可变对象有很多优点，包括：</p>
+<ul>
+<li>当对象被不可信的库调用时，不可变形式是安全的；</li>
+<li>不可变对象被多个线程调用时，不存在竞态条件问题</li>
+<li>不可变集合不需要考虑变化，因此可以节省时间和空间。所有不可变的集合都比它们的可变形式有更好的内存利用率（分析和测试细节）；</li>
+<li>不可变对象因为有固定不变，可以作为常量来安全使用。</li>
+</ul>
+<p>JDK也提供了Collections.unmodifiableXXX方法把集合包装为不可变形式，但：</p>
+<ul>
+<li>笨重而且累赘：不能舒适地用在所有想做防御性拷贝的场景；</li>
+<li>不安全：要保证没人通过原集合的引用进行修改，返回的集合才是事实上不可变的；</li>
+<li>低效：包装过的集合仍然保有可变集合的开销，比如并发修改的检查、散列表的额外空间，等等。</li>
+</ul>
+<p>创建不可变集合方法：</p>
+<ul>
+<li>copyOf方法，如ImmutableSet.copyOf(set);</li>
+<li>of方法，如ImmutableSet.of(“a”, “b”, “c”)或 ImmutableMap.of(“a”, 1, “b”, 2);</li>
+<li>Builder工具</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public class ImmutableDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       ImmutableSet&lt;String&gt; set=ImmutableSet.of(&quot;a&quot;,&quot;b&quot;,&quot;c&quot;,&quot;d&quot;);</span><br><span class="line">       ImmutableSet&lt;String&gt; set1=ImmutableSet.copyOf(set);</span><br><span class="line">       ImmutableSet&lt;String&gt; set2=ImmutableSet.&lt;String&gt;builder().addAll(set).add(&quot;e&quot;).build();</span><br><span class="line">       System.out.println(set);</span><br><span class="line">       ImmutableList&lt;String&gt; list=set.asList();</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">1234567891011</span><br></pre></td></tr></table></figure>
+<h4 id="新型集合类"><a href="#新型集合类" class="headerlink" title="新型集合类"></a>新型集合类</h4><h5 id="Multiset"><a href="#Multiset" class="headerlink" title="Multiset"></a>Multiset</h5><p>Multiset可统计一个词在文档中出现了多少次</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">public class MultiSetDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       Multiset&lt;String&gt; set=LinkedHashMultiset.create();</span><br><span class="line">       set.add(&quot;a&quot;);</span><br><span class="line">       set.add(&quot;a&quot;);</span><br><span class="line">       set.add(&quot;a&quot;);</span><br><span class="line">       set.add(&quot;a&quot;);</span><br><span class="line">       set.setCount(&quot;a&quot;,5); //添加或删除指定元素使其在集合中的数量是count</span><br><span class="line">       System.out.println(set.count(&quot;a&quot;)); //给定元素在Multiset中的计数</span><br><span class="line">       System.out.println(set);</span><br><span class="line">       System.out.println(set.size()); //所有元素计数的总和,包括重复元素</span><br><span class="line">       System.out.println(set.elementSet().size()); //所有元素计数的总和,不包括重复元素</span><br><span class="line">       set.clear(); //清空集合</span><br><span class="line">       System.out.println(set);</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">12345678910111213141516171819</span><br></pre></td></tr></table></figure>
+<h5 id="Multimap"><a href="#Multimap" class="headerlink" title="Multimap"></a>Multimap</h5><p>Multimap可以很容易地把一个键映射到多个值。换句话说，Multimap是把键映射到任意多个值的一般方式。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public class MultiMapDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       Multimap&lt;String,Integer&gt; map= HashMultimap.create(); //Multimap是把键映射到任意多个值的一般方式</span><br><span class="line">       map.put(&quot;a&quot;,1); //key相同时不会覆盖原value</span><br><span class="line">       map.put(&quot;a&quot;,2);</span><br><span class="line">       map.put(&quot;a&quot;,3);</span><br><span class="line">       System.out.println(map); //&#123;a=[1, 2, 3]&#125;</span><br><span class="line">       System.out.println(map.get(&quot;a&quot;)); //返回的是集合</span><br><span class="line">       System.out.println(map.size()); //返回所有”键-单个值映射”的个数,而非不同键的个数</span><br><span class="line">       System.out.println(map.keySet().size()); //返回不同key的个数</span><br><span class="line">       Map&lt;String,Collection&lt;Integer&gt;&gt; mapView=map.asMap();</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">123456789101112131415</span><br></pre></td></tr></table></figure>
+<h5 id="BiMap"><a href="#BiMap" class="headerlink" title="BiMap"></a>BiMap</h5><p>BiMap</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public class BitMapDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       BiMap&lt;String,String&gt; biMap= HashBiMap.create();</span><br><span class="line">       biMap.put(&quot;sina&quot;,&quot;sina.com&quot;);</span><br><span class="line">       biMap.put(&quot;qq&quot;,&quot;qq.com&quot;);</span><br><span class="line">       biMap.put(&quot;sina&quot;,&quot;sina.cn&quot;); //会覆盖原来的value</span><br><span class="line">       /*</span><br><span class="line">         在BiMap中,如果你想把键映射到已经存在的值，会抛出IllegalArgumentException异常</span><br><span class="line">         如果对特定值,你想要强制替换它的键，请使用 BiMap.forcePut(key, value)</span><br><span class="line">        */</span><br><span class="line">       biMap.put(&quot;tecent&quot;,&quot;qq.com&quot;); //抛出异常</span><br><span class="line">       biMap.forcePut(&quot;tecent&quot;,&quot;qq.com&quot;); //强制替换key</span><br><span class="line">       System.out.println(biMap);</span><br><span class="line">       System.out.println(biMap.inverse().get(&quot;sina.com&quot;)); //通过value找key</span><br><span class="line">       System.out.println(biMap.inverse().inverse()==biMap); //true</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">1234567891011121314151617181920</span><br></pre></td></tr></table></figure>
+<h5 id="Table"><a href="#Table" class="headerlink" title="Table"></a>Table</h5><p>Table它有两个支持所有类型的键：”行”和”列”。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public class TableDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       //记录学生在某门课上的成绩</span><br><span class="line">       Table&lt;String,String,Integer&gt; table= HashBasedTable.create();</span><br><span class="line">       table.put(&quot;jack&quot;,&quot;java&quot;,100);</span><br><span class="line">       table.put(&quot;jack&quot;,&quot;c&quot;,90);</span><br><span class="line">       table.put(&quot;mike&quot;,&quot;java&quot;,93);</span><br><span class="line">       table.put(&quot;mike&quot;,&quot;c&quot;,100);</span><br><span class="line">       Set&lt;Table.Cell&lt;String,String,Integer&gt;&gt; cells=table.cellSet();</span><br><span class="line">       for (Table.Cell&lt;String,String,Integer&gt; cell : cells) &#123;</span><br><span class="line">           System.out.println(cell.getRowKey()+&quot; &quot;+cell.getColumnKey()+&quot; &quot;+cell.getValue());</span><br><span class="line">       &#125;</span><br><span class="line">       System.out.println(table.row(&quot;jack&quot;));</span><br><span class="line">       System.out.println(table);</span><br><span class="line">       System.out.println(table.rowKeySet());</span><br><span class="line">       System.out.println(table.columnKeySet());</span><br><span class="line">       System.out.println(table.values());</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">123456789101112131415161718192021</span><br></pre></td></tr></table></figure>
+<h4 id="Collections2"><a href="#Collections2" class="headerlink" title="Collections2"></a>Collections2</h4><p>filter（）：只保留集合中满足特定要求的元素</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public class FilterDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       List&lt;String&gt; list= Lists.newArrayList(&quot;moon&quot;,&quot;dad&quot;,&quot;refer&quot;,&quot;son&quot;);</span><br><span class="line">       Collection&lt;String&gt; palindromeList= Collections2.filter(list, input -&gt; &#123;</span><br><span class="line">           return new StringBuilder(input).reverse().toString().equals(input); //找回文串</span><br><span class="line">       &#125;);</span><br><span class="line">       System.out.println(palindromeList);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">1234567891011</span><br></pre></td></tr></table></figure>
+<p>transform（）：类型转换</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">public class TransformDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       Set&lt;Long&gt; times= Sets.newHashSet();</span><br><span class="line">       times.add(91299990701L);</span><br><span class="line">       times.add(9320001010L);</span><br><span class="line">       times.add(9920170621L);</span><br><span class="line">       Collection&lt;String&gt; timeStrCol= Collections2.transform(times, new Function&lt;Long, String&gt;() &#123;</span><br><span class="line">           @Nullable</span><br><span class="line">           @Override</span><br><span class="line">           public String apply(@Nullable Long input) &#123;</span><br><span class="line">               return new SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(input);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;);</span><br><span class="line">       System.out.println(timeStrCol);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">123456789101112131415161718</span><br></pre></td></tr></table></figure>
+<p>多个Function组合</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">public class TransformDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       List&lt;String&gt; list= Lists.newArrayList(&quot;abcde&quot;,&quot;good&quot;,&quot;happiness&quot;);</span><br><span class="line">       //确保容器中的字符串长度不超过5</span><br><span class="line">       Function&lt;String,String&gt; f1=new Function&lt;String, String&gt;() &#123;</span><br><span class="line">           @Nullable</span><br><span class="line">           @Override</span><br><span class="line">           public String apply(@Nullable String input) &#123;</span><br><span class="line">               return input.length()&gt;5?input.substring(0,5):input;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;;</span><br><span class="line">       //转成大写</span><br><span class="line">       Function&lt;String,String&gt; f2=new Function&lt;String, String&gt;() &#123;</span><br><span class="line">           @Nullable</span><br><span class="line">           @Override</span><br><span class="line">           public String apply(@Nullable String input) &#123;</span><br><span class="line">               return input.toUpperCase();</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;;</span><br><span class="line">       Function&lt;String,String&gt; function=Functions.compose(f1,f2);</span><br><span class="line">       Collection&lt;String&gt; results=Collections2.transform(list,function);</span><br><span class="line">       System.out.println(results);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">1234567891011121314151617181920212223242526</span><br></pre></td></tr></table></figure>
+<h4 id="集合操作：交集、差集、并集"><a href="#集合操作：交集、差集、并集" class="headerlink" title="集合操作：交集、差集、并集"></a>集合操作：交集、差集、并集</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">public class CollectionsDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       Set&lt;Integer&gt; set1= Sets.newHashSet(1,2,3,4,5);</span><br><span class="line">       Set&lt;Integer&gt; set2=Sets.newHashSet(3,4,5,6);</span><br><span class="line">       Sets.SetView&lt;Integer&gt; inter=Sets.intersection(set1,set2); //交集</span><br><span class="line">       System.out.println(inter);</span><br><span class="line">       Sets.SetView&lt;Integer&gt; diff=Sets.difference(set1,set2); //差集,在A中不在B中</span><br><span class="line">       System.out.println(diff);</span><br><span class="line">       Sets.SetView&lt;Integer&gt; union=Sets.union(set1,set2); //并集</span><br><span class="line">       System.out.println(union);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">1234567891011121314</span><br></pre></td></tr></table></figure>
+<h3 id="Cache"><a href="#Cache" class="headerlink" title="Cache"></a>Cache</h3><p>缓存在很多场景下都是相当有用的。例如，计算或检索一个值的代价很高，并且对同样的输入需要不止一次获取值的时候，就应当考虑使用缓存。</p>
+<p>Guava Cache与ConcurrentMap很相似，但也不完全一样。最基本的区别是ConcurrentMap会一直保存所有添加的元素，直到显式地移除。相对地，Guava Cache为了限制内存占用，通常都设定为自动回收元素。在某些场景下，尽管LoadingCache 不回收元素，它也是很有用的，因为它会自动加载缓存。</p>
+<p>Guava Cache是一个全内存的本地缓存实现，它提供了线程安全的实现机制。</p>
+<p>通常来说，Guava Cache适用于：</p>
+<ul>
+<li>你愿意消耗一些内存空间来提升速度。</li>
+<li>你预料到某些键会被查询一次以上。</li>
+<li>缓存中存放的数据总量不会超出内存容量。（Guava Cache是单个应用运行时的本地缓存。它不把数据存放到文件或外部服务器。</li>
+</ul>
+<p>如果这不符合你的需求，请尝试Memcached这类工具）</p>
+<p>Guava Cache有两种创建方式：</p>
+<ul>
+<li>cacheLoader</li>
+<li>callable callback</li>
+</ul>
+<p>LoadingCache是附带CacheLoader构建而成的缓存实现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">public class LoadingCacheDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       LoadingCache&lt;String,String&gt; cache= CacheBuilder.newBuilder()</span><br><span class="line">               .maximumSize(100) //最大缓存数目</span><br><span class="line">               .expireAfterAccess(1, TimeUnit.SECONDS) //缓存1秒后过期</span><br><span class="line">               .build(new CacheLoader&lt;String, String&gt;() &#123;</span><br><span class="line">                   @Override</span><br><span class="line">                   public String load(String key) throws Exception &#123;</span><br><span class="line">                       return key;</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;);</span><br><span class="line">       cache.put(&quot;j&quot;,&quot;java&quot;);</span><br><span class="line">       cache.put(&quot;c&quot;,&quot;cpp&quot;);</span><br><span class="line">       cache.put(&quot;s&quot;,&quot;scala&quot;);</span><br><span class="line">       cache.put(&quot;g&quot;,&quot;go&quot;);</span><br><span class="line">       try &#123;</span><br><span class="line">           System.out.println(cache.get(&quot;j&quot;));</span><br><span class="line">           TimeUnit.SECONDS.sleep(2);</span><br><span class="line">           System.out.println(cache.get(&quot;s&quot;)); //输出s</span><br><span class="line">       &#125; catch (ExecutionException | InterruptedException e) &#123;</span><br><span class="line">           e.printStackTrace();</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">1234567891011121314151617181920212223242526</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class CallbackDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       Cache&lt;String,String&gt; cache= CacheBuilder.newBuilder()</span><br><span class="line">               .maximumSize(100)</span><br><span class="line">               .expireAfterAccess(1, TimeUnit.SECONDS)</span><br><span class="line">               .build();</span><br><span class="line">       try &#123;</span><br><span class="line">           String result=cache.get(&quot;java&quot;, () -&gt; &quot;hello java&quot;);</span><br><span class="line">           System.out.println(result);</span><br><span class="line">       &#125; catch (ExecutionException e) &#123;</span><br><span class="line">           e.printStackTrace();</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">12345678910111213141516</span><br></pre></td></tr></table></figure>
+<p>refresh机制：<br>- LoadingCache.refresh(K) 在生成新的value的时候，旧的value依然会被使用。<br>- CacheLoader.reload(K, V) 生成新的value过程中允许使用旧的value<br>- CacheBuilder.refreshAfterWrite(long, TimeUnit) 自动刷新cache</p>
+<h3 id="并发"><a href="#并发" class="headerlink" title="并发"></a>并发</h3><h4 id="ListenableFuture"><a href="#ListenableFuture" class="headerlink" title="ListenableFuture"></a>ListenableFuture</h4><p>传统JDK中的Future通过异步的方式计算返回结果:在多线程运算中可能或者可能在没有结束返回结果，Future是运行中的多线程的一个引用句柄，确保在服务执行返回一个Result。</p>
+<p>ListenableFuture可以允许你注册回调方法(callbacks)，在运算（多线程执行）完成的时候进行调用, 或者在运算（多线程执行）完成后立即执行。这样简单的改进，使得可以明显的支持更多的操作，这样的功能在JDK concurrent中的Future是不支持的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">public class ListenableFutureDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       //将ExecutorService装饰成ListeningExecutorService</span><br><span class="line">       ListeningExecutorService service= MoreExecutors.listeningDecorator(</span><br><span class="line">               Executors.newCachedThreadPool());</span><br><span class="line"></span><br><span class="line">       //通过异步的方式计算返回结果</span><br><span class="line">       ListenableFuture&lt;String&gt; future=service.submit(() -&gt; &#123;</span><br><span class="line">           System.out.println(&quot;call execute..&quot;);</span><br><span class="line">           return &quot;task success!&quot;;</span><br><span class="line">       &#125;);</span><br><span class="line"></span><br><span class="line">       //有两种方法可以执行此Future并执行Future完成之后的回调函数</span><br><span class="line">       future.addListener(() -&gt; &#123;  //该方法会在多线程运算完的时候,指定的Runnable参数传入的对象会被指定的Executor执行</span><br><span class="line">           try &#123;</span><br><span class="line">               System.out.println(&quot;result: &quot;+future.get());</span><br><span class="line">           &#125; catch (InterruptedException | ExecutionException e) &#123;</span><br><span class="line">               e.printStackTrace();</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;,service);</span><br><span class="line"></span><br><span class="line">       Futures.addCallback(future, new FutureCallback&lt;String&gt;() &#123;</span><br><span class="line">           @Override</span><br><span class="line">           public void onSuccess(@Nullable String result) &#123;</span><br><span class="line">               System.out.println(&quot;callback result: &quot;+result);</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           @Override</span><br><span class="line">           public void onFailure(Throwable t) &#123;</span><br><span class="line">               System.out.println(t.getMessage());</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;,service);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line">123456789101112131415161718192021222324252627282930313233343536</span><br></pre></td></tr></table></figure>
+<h3 id="IO"><a href="#IO" class="headerlink" title="IO"></a>IO</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">public class FileDemo &#123;</span><br><span class="line">   public static void main(String[] args) &#123;</span><br><span class="line">       File file=new File(System.getProperty(&quot;user.dir&quot;));</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   //写文件</span><br><span class="line">   private void writeFile(String content,File file) throws IOException &#123;</span><br><span class="line">       if (!file.exists())&#123;</span><br><span class="line">           file.createNewFile();</span><br><span class="line">       &#125;</span><br><span class="line">       Files.write(content.getBytes(Charsets.UTF_8),file);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   //读文件</span><br><span class="line">   private List&lt;String&gt; readFile(File file) throws IOException &#123;</span><br><span class="line">       if (!file.exists())&#123;</span><br><span class="line">           return ImmutableList.of(); //避免返回null</span><br><span class="line">       &#125;</span><br><span class="line">       return Files.readLines(file,Charsets.UTF_8);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   //文件复制</span><br><span class="line">   private void copyFile(File from,File to) throws IOException &#123;</span><br><span class="line">       if (!from.exists())&#123;</span><br><span class="line">           return;</span><br><span class="line">       &#125;</span><br><span class="line">       if (!to.exists())&#123;</span><br><span class="line">           to.createNewFile();</span><br><span class="line">       &#125;</span><br><span class="line">       Files.copy(from,to);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">123456789101112131415161718192021222324252627282930313233343536</span><br></pre></td></tr></table></figure>
+<p><a href="http://www.importnew.com/tag/guava" target="_blank" rel="noopener">Google Guava官方教程（中文版）</a><br><a href="http://www.importnew.com/tag/guava" target="_blank" rel="noopener">guava-importnew</a></p>
+<p>版权声明：转载请注明本文源地址 <a href="https://blog.csdn.net/dgeek/article/details/76221746" target="_blank" rel="noopener">https://blog.csdn.net/dgeek/article/details/76221746</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/21/Guava-瓜娃-学习笔记/" rel="next" title="Guava(瓜娃)学习笔记">
+                <i class="fa fa-chevron-left"></i> Guava(瓜娃)学习笔记
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Duke Du</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">30</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本工具包Base"><span class="nav-number">1.</span> <span class="nav-text">基本工具包Base</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Optional"><span class="nav-number">1.1.</span> <span class="nav-text">Optional</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Preconditions"><span class="nav-number">1.2.</span> <span class="nav-text">Preconditions</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Joiner"><span class="nav-number">1.3.</span> <span class="nav-text">Joiner</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Splitter"><span class="nav-number">1.4.</span> <span class="nav-text">Splitter</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Objects"><span class="nav-number">1.5.</span> <span class="nav-text">Objects</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EventBus"><span class="nav-number">2.</span> <span class="nav-text">EventBus</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Collection"><span class="nav-number">3.</span> <span class="nav-text">Collection</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#不可变集合"><span class="nav-number">3.1.</span> <span class="nav-text">不可变集合</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#新型集合类"><span class="nav-number">3.2.</span> <span class="nav-text">新型集合类</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Multiset"><span class="nav-number">3.2.1.</span> <span class="nav-text">Multiset</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Multimap"><span class="nav-number">3.2.2.</span> <span class="nav-text">Multimap</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#BiMap"><span class="nav-number">3.2.3.</span> <span class="nav-text">BiMap</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Table"><span class="nav-number">3.2.4.</span> <span class="nav-text">Table</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Collections2"><span class="nav-number">3.3.</span> <span class="nav-text">Collections2</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#集合操作：交集、差集、并集"><span class="nav-number">3.4.</span> <span class="nav-text">集合操作：交集、差集、并集</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Cache"><span class="nav-number">4.</span> <span class="nav-text">Cache</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#并发"><span class="nav-number">5.</span> <span class="nav-text">并发</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ListenableFuture"><span class="nav-number">5.1.</span> <span class="nav-text">ListenableFuture</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IO"><span class="nav-number">6.</span> <span class="nav-text">IO</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Duke Du</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
