@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Guava Cache内存缓存使用实践-定时异步刷新及简单抽象封装2017年07月17日 16:53:05 阅读数：10099 缓存在应用中是必不可少的，经常用的如redis、memcache以及内存缓存等。Guava是Google出的一个工具包，它里面的cache即是对本地内存缓存的一种实现，支持多种缓存过期策略。Guava cache的缓存加载方式有两种：  CacheLoader Calla">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Guava Cache内存缓存使用实践-定时异步刷新及简单抽象封装">
+<meta property="og:url" content="http://yoursite.com/2018/05/21/Guava-Cache内存缓存使用实践-定时异步刷新及简单抽象封装/index.html">
+<meta property="og:site_name" content="Duke Du的博客">
+<meta property="og:description" content="Guava Cache内存缓存使用实践-定时异步刷新及简单抽象封装2017年07月17日 16:53:05 阅读数：10099 缓存在应用中是必不可少的，经常用的如redis、memcache以及内存缓存等。Guava是Google出的一个工具包，它里面的cache即是对本地内存缓存的一种实现，支持多种缓存过期策略。Guava cache的缓存加载方式有两种：  CacheLoader Calla">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-21T02:30:31.802Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Guava Cache内存缓存使用实践-定时异步刷新及简单抽象封装">
+<meta name="twitter:description" content="Guava Cache内存缓存使用实践-定时异步刷新及简单抽象封装2017年07月17日 16:53:05 阅读数：10099 缓存在应用中是必不可少的，经常用的如redis、memcache以及内存缓存等。Guava是Google出的一个工具包，它里面的cache即是对本地内存缓存的一种实现，支持多种缓存过期策略。Guava cache的缓存加载方式有两种：  CacheLoader Calla">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/05/21/Guava-Cache内存缓存使用实践-定时异步刷新及简单抽象封装/"/>
+
+
+
+
+
+  <title>Guava Cache内存缓存使用实践-定时异步刷新及简单抽象封装 | Duke Du的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Duke Du的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/21/Guava-Cache内存缓存使用实践-定时异步刷新及简单抽象封装/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Duke Du">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Duke Du的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Guava Cache内存缓存使用实践-定时异步刷新及简单抽象封装</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-21T10:29:28+08:00">
+                2018-05-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h6 id="Guava-Cache内存缓存使用实践-定时异步刷新及简单抽象封装"><a href="#Guava-Cache内存缓存使用实践-定时异步刷新及简单抽象封装" class="headerlink" title="Guava Cache内存缓存使用实践-定时异步刷新及简单抽象封装"></a>Guava Cache内存缓存使用实践-定时异步刷新及简单抽象封装</h6><p>2017年07月17日 16:53:05</p>
+<p>阅读数：10099</p>
+<p>缓存在应用中是必不可少的，经常用的如redis、memcache以及内存缓存等。Guava是Google出的一个工具包，它里面的cache即是对本地内存缓存的一种实现，支持多种缓存过期策略。<br>Guava cache的缓存加载方式有两种：</p>
+<ul>
+<li>CacheLoader</li>
+<li>Callable callback</li>
+</ul>
+<p>具体两种方式的介绍看官方文档：<a href="http://ifeve.com/google-guava-cachesexplained/" target="_blank" rel="noopener">http://ifeve.com/google-guava-cachesexplained/</a></p>
+<p>接下来看看常见的一些使用方法。<br>后面的示例实践都是以CacheLoader方式加载缓存值。</p>
+<h2 id="1-简单使用：定时过期"><a href="#1-简单使用：定时过期" class="headerlink" title="1.简单使用：定时过期"></a>1.简单使用：定时过期</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">LoadingCache&lt;String, Object&gt; caches = CacheBuilder.newBuilder()</span><br><span class="line">                .maximumSize(100)</span><br><span class="line">                .expireAfterWrite(10, TimeUnit.MINUTES)</span><br><span class="line">                .build(new CacheLoader&lt;String, Object&gt;() &#123;</span><br><span class="line">                    @Override</span><br><span class="line">                    public Object load(String key) throws Exception &#123;</span><br><span class="line">                        return generateValueByKey(key);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">try &#123;</span><br><span class="line">    System.out.println(caches.get(&quot;key-zorro&quot;));</span><br><span class="line">&#125; catch (ExecutionException e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125;1234567891011121314</span><br></pre></td></tr></table></figure>
+<p>如代码所示新建了名为caches的一个缓存对象，maximumSize定义了缓存的容量大小，当缓存数量即将到达容量上线时，则会进行缓存回收，回收最近没有使用或总体上很少使用的缓存项。需要注意的是在接近这个容量上限时就会发生，所以在定义这个值的时候需要视情况适量地增大一点。<br>另外通过<strong>expireAfterWrite</strong>这个方法定义了缓存的过期时间，写入十分钟之后过期。<br>在build方法里，传入了一个CacheLoader对象，重写了其中的load方法。当获取的缓存值不存在或已过期时，则会调用此load方法，进行缓存值的计算。<br>这就是最简单也是我们平常最常用的一种使用方法。定义了缓存大小、过期时间及缓存值生成方法。</p>
+<p>如果用其他的缓存方式，如redis，我们知道上面这种“如果有缓存则返回；否则运算、缓存、然后返回”的缓存模式是有很大弊端的。当高并发条件下同时进行get操作，而此时缓存值已过期时，会导致大量线程都调用生成缓存值的方法，比如从数据库读取。这时候就容易造成数据库雪崩。这也就是我们常说的“缓存穿透”。<br>而Guava cache则对此种情况有一定控制。当大量线程用相同的key获取缓存值时，只会有一个线程进入load方法，而其他线程则等待，直到缓存值被生成。这样也就避免了缓存穿透的危险。</p>
+<h2 id="2-进阶使用：定时刷新"><a href="#2-进阶使用：定时刷新" class="headerlink" title="2.进阶使用：定时刷新"></a>2.进阶使用：定时刷新</h2><p>如上的使用方法，虽然不会有缓存穿透的情况，但是每当某个缓存值过期时，老是会导致大量的请求线程被阻塞。而Guava则提供了另一种缓存策略，缓存值定时刷新：更新线程调用load方法更新该缓存，其他请求线程返回该缓存的旧值。这样对于某个key的缓存来说，只会有一个线程被阻塞，用来生成缓存值，而其他的线程都返回旧的缓存值，不会被阻塞。<br>这里就需要用到Guava cache的<strong>refreshAfterWrite</strong>方法。如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">LoadingCache&lt;String, Object&gt; caches = CacheBuilder.newBuilder()</span><br><span class="line">                .maximumSize(100)</span><br><span class="line">                .refreshAfterWrite(10, TimeUnit.MINUTES)</span><br><span class="line">                .build(new CacheLoader&lt;String, Object&gt;() &#123;</span><br><span class="line">                    @Override</span><br><span class="line">                    public Object load(String key) throws Exception &#123;</span><br><span class="line">                        return generateValueByKey(key);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">try &#123;</span><br><span class="line">    System.out.println(caches.get(&quot;key-zorro&quot;));</span><br><span class="line">&#125; catch (ExecutionException e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125;1234567891011121314</span><br></pre></td></tr></table></figure>
+<p>如代码所示，每隔十分钟缓存值则会被刷新。</p>
+<p>此外需要注意一个点，这里的定时并不是真正意义上的定时。Guava cache的刷新需要依靠用户请求线程，让该线程去进行load方法的调用，所以如果一直没有用户尝试获取该缓存值，则该缓存也并不会刷新。</p>
+<h2 id="3-进阶使用：异步刷新"><a href="#3-进阶使用：异步刷新" class="headerlink" title="3.进阶使用：异步刷新"></a>3.进阶使用：异步刷新</h2><p>如2中的使用方法，解决了同一个key的缓存过期时会让多个线程阻塞的问题，只会让用来执行刷新缓存操作的一个用户线程会被阻塞。由此可以想到另一个问题，当缓存的key很多时，高并发条件下大量线程同时获取不同key对应的缓存，此时依然会造成大量线程阻塞，并且给数据库带来很大压力。这个问题的解决办法就是将刷新缓存值的任务交给后台线程，所有的用户请求线程均返回旧的缓存值，这样就不会有用户线程被阻塞了。<br>详细做法如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">ListeningExecutorService backgroundRefreshPools = </span><br><span class="line">                MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(20));</span><br><span class="line">        LoadingCache&lt;String, Object&gt; caches = CacheBuilder.newBuilder()</span><br><span class="line">                .maximumSize(100)</span><br><span class="line">                .refreshAfterWrite(10, TimeUnit.MINUTES)</span><br><span class="line">                .build(new CacheLoader&lt;String, Object&gt;() &#123;</span><br><span class="line">                    @Override</span><br><span class="line">                    public Object load(String key) throws Exception &#123;</span><br><span class="line">                        return generateValueByKey(key);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    @Override</span><br><span class="line">                    public ListenableFuture&lt;Object&gt; reload(String key,</span><br><span class="line">                            Object oldValue) throws Exception &#123;</span><br><span class="line">                        return backgroundRefreshPools.submit(new Callable&lt;Object&gt;() &#123;</span><br><span class="line"></span><br><span class="line">                            @Override</span><br><span class="line">                            public Object call() throws Exception &#123;</span><br><span class="line">                                return generateValueByKey(key);</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line">try &#123;</span><br><span class="line">    System.out.println(caches.get(&quot;key-zorro&quot;));</span><br><span class="line">&#125; catch (ExecutionException e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">&#125;12345678910111213141516171819202122232425262728</span><br></pre></td></tr></table></figure>
+<p>在上面的代码中，我们新建了一个线程池，用来执行缓存刷新任务。并且重写了CacheLoader的<strong>reload</strong>方法，在该方法中建立缓存刷新的任务并提交到线程池。<br>注意此时缓存的刷新依然需要靠用户线程来驱动，只不过和2不同之处在于该用户线程触发刷新操作之后，会立马返回旧的缓存值。</p>
+<h2 id="TIPS"><a href="#TIPS" class="headerlink" title="TIPS"></a>TIPS</h2><ul>
+<li>可以看到防缓存穿透和防用户线程阻塞都是依靠返回旧值来完成的。所以如果没有旧值，同样会全部阻塞，因此应视情况尽量在系统启动时将缓存内容加载到内存中。</li>
+<li>在刷新缓存时，如果generateValueByKey方法出现异常或者返回了null，此时旧值不会更新。</li>
+<li>题外话：在使用内存缓存时，切记拿到缓存值之后不要在业务代码中对缓存直接做修改，因为此时拿到的对象引用是指向缓存真正的内容的。如果需要直接在该对象上进行修改，则在获取到缓存值后拷贝一份副本，然后传递该副本，进行修改操作。（我曾经就犯过这个低级错误 - -！）</li>
+</ul>
+<h2 id="4-简单抽象封装"><a href="#4-简单抽象封装" class="headerlink" title="4.简单抽象封装"></a>4.简单抽象封装</h2><p>如下为基于Guava cache抽象出来的一个缓存工具类。（抽象得不好，勉强能用 - -！）。<br>有改进意见麻烦多多指教。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@description</span>: 利用guava实现的内存缓存。缓存加载之后永不过期，后台线程定时刷新缓存值。刷新失败时将继续返回旧缓存。</span></span><br><span class="line"><span class="comment"> *                  需要在子类中初始化refreshDuration、refreshTimeunitType、cacheMaximumSize三个参数</span></span><br><span class="line"><span class="comment"> *                  后台刷新线程池为该系统中所有子类共享，大小为20.</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span>: luozhuo</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@date</span>: 2017年6月21日 上午10:03:45 </span></span><br><span class="line"><span class="comment"> * <span class="doctag">@version</span>: V1.0.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &lt;K&gt;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@param</span> &lt;V&gt;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">ZorroGuavaCache</span> &lt;<span class="title">K</span>, <span class="title">V</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 缓存自动刷新周期</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span> refreshDuration;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 缓存刷新周期时间格式</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">protected</span> TimeUnit refreshTimeunitType;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 缓存最大容量</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span> cacheMaximumSize;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> LoadingCache&lt;K, V&gt; cache;</span><br><span class="line">    <span class="keyword">private</span> ListeningExecutorService backgroundRefreshPools = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(<span class="number">20</span>));</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@description</span>: 初始化所有protected字段：</span></span><br><span class="line"><span class="comment">     * refreshDuration、refreshTimeunitType、cacheMaximumSize</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@author</span>: luozhuo</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@date</span>: 2017年6月13日 下午2:49:19</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">initCacheFields</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@description</span>: 定义缓存值的计算方法</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@description</span>: 新值计算失败时抛出异常，get操作时将继续返回旧的缓存</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@author</span>: luozhuo</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@date</span>: 2017年6月14日 下午7:11:10</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> V <span class="title">getValueWhenExpire</span><span class="params">(K key)</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@description</span>: 提供给外部使用的获取缓存方法，由实现类进行异常处理</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@author</span>: luozhuo</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@date</span>: 2017年6月15日 下午12:00:57</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> V <span class="title">getValue</span><span class="params">(K key)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@description</span>: 获取cache实例</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@author</span>: luozhuo</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@date</span>: 2017年6月13日 下午2:50:11</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> LoadingCache&lt;K, V&gt; <span class="title">getCache</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(cache == <span class="keyword">null</span>)&#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span>(cache == <span class="keyword">null</span>)&#123;</span><br><span class="line">                    initCacheFields();</span><br><span class="line"></span><br><span class="line">                    cache = CacheBuilder.newBuilder()</span><br><span class="line">                            .maximumSize(cacheMaximumSize)</span><br><span class="line">                            .refreshAfterWrite(refreshDuration, refreshTimeunitType)</span><br><span class="line">                            .build(<span class="keyword">new</span> CacheLoader&lt;K, V&gt;() &#123;</span><br><span class="line">                                <span class="meta">@Override</span></span><br><span class="line">                                <span class="function"><span class="keyword">public</span> V <span class="title">load</span><span class="params">(K key)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                                    <span class="keyword">return</span> getValueWhenExpire(key);</span><br><span class="line">                                &#125;</span><br><span class="line"></span><br><span class="line">                                <span class="meta">@Override</span></span><br><span class="line">                                <span class="function"><span class="keyword">public</span> ListenableFuture&lt;V&gt; <span class="title">reload</span><span class="params">(<span class="keyword">final</span> K key,</span></span></span><br><span class="line"><span class="function"><span class="params">                                        V oldValue)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                                    <span class="keyword">return</span> backgroundRefreshPools.submit(<span class="keyword">new</span> Callable&lt;V&gt;() &#123;</span><br><span class="line">                                        <span class="function"><span class="keyword">public</span> V <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                                            <span class="keyword">return</span> getValueWhenExpire(key);</span><br><span class="line">                                        &#125;</span><br><span class="line">                                    &#125;);</span><br><span class="line">                                &#125;</span><br><span class="line">                            &#125;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> cache;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@description</span>: 从cache中拿出数据的操作</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> key</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> ExecutionException</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@author</span>: luozhuo</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@date</span>: 2017年6月13日 下午5:07:11</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> V <span class="title">fetchDataFromCache</span><span class="params">(K key)</span> <span class="keyword">throws</span> ExecutionException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> getCache().get(key);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>转载于</p>
+<p><a href="https://blog.csdn.net/u012859681/article/details/75220605" target="_blank" rel="noopener">https://blog.csdn.net/u012859681/article/details/75220605</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/04/Class对象的获取/" rel="next" title="Class对象的获取">
+                <i class="fa fa-chevron-left"></i> Class对象的获取
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Duke Du</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">35</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-6"><a class="nav-link" href="#Guava-Cache内存缓存使用实践-定时异步刷新及简单抽象封装"><span class="nav-number">1.</span> <span class="nav-text">Guava Cache内存缓存使用实践-定时异步刷新及简单抽象封装</span></a></li></ol></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-简单使用：定时过期"><span class="nav-number"></span> <span class="nav-text">1.简单使用：定时过期</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-进阶使用：定时刷新"><span class="nav-number"></span> <span class="nav-text">2.进阶使用：定时刷新</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-进阶使用：异步刷新"><span class="nav-number"></span> <span class="nav-text">3.进阶使用：异步刷新</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TIPS"><span class="nav-number"></span> <span class="nav-text">TIPS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-简单抽象封装"><span class="nav-number"></span> <span class="nav-text">4.简单抽象封装</span></a></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Duke Du</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
