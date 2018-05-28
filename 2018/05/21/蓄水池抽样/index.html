@@ -79,19 +79,17 @@
 
 
 
-<meta name="description" content="分布式锁一般有三种实现方式：1. 数据库乐观锁；2. 基于Redis的分布式锁；3. 基于ZooKeeper的分布式锁。本篇博客将介绍第二种方式，基于Redis实现分布式锁。虽然网上已经有各种介绍Redis分布式锁实现的博客，然而他们的实现却有着各种各样的问题，为了避免误人子弟，本篇博客将详细介绍如何正确地实现Redis分布式锁。 可靠性 首先，为了确保分布式锁可用，我们至少要确保锁的实现同时满足">
+<meta name="description" content="蓄水池抽样问题是从动态变化的N个元素中随机抽选出M个元素(N&amp;gt;=M) 算法描述如下： 123456Init : a reservoir with the size： k        for    i= k+1 to N            M=random(1, i);            if( M &amp;lt; k)                 SWAP the Mth value">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Redis学习笔记——分布式锁的正确实现方式">
-<meta property="og:url" content="http://yoursite.com/2018/04/02/Redis学习笔记——分布式锁的正确实现方式/index.html">
+<meta property="og:title" content="蓄水池抽样">
+<meta property="og:url" content="http://yoursite.com/2018/05/21/蓄水池抽样/index.html">
 <meta property="og:site_name" content="Duke Du的博客">
-<meta property="og:description" content="分布式锁一般有三种实现方式：1. 数据库乐观锁；2. 基于Redis的分布式锁；3. 基于ZooKeeper的分布式锁。本篇博客将介绍第二种方式，基于Redis实现分布式锁。虽然网上已经有各种介绍Redis分布式锁实现的博客，然而他们的实现却有着各种各样的问题，为了避免误人子弟，本篇博客将详细介绍如何正确地实现Redis分布式锁。 可靠性 首先，为了确保分布式锁可用，我们至少要确保锁的实现同时满足">
+<meta property="og:description" content="蓄水池抽样问题是从动态变化的N个元素中随机抽选出M个元素(N&amp;gt;=M) 算法描述如下： 123456Init : a reservoir with the size： k        for    i= k+1 to N            M=random(1, i);            if( M &amp;lt; k)                 SWAP the Mth value">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/9741289-23d5652f3a24bab0?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
-<meta property="og:updated_time" content="2018-04-02T01:58:24.533Z">
+<meta property="og:updated_time" content="2018-05-21T06:46:54.066Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Redis学习笔记——分布式锁的正确实现方式">
-<meta name="twitter:description" content="分布式锁一般有三种实现方式：1. 数据库乐观锁；2. 基于Redis的分布式锁；3. 基于ZooKeeper的分布式锁。本篇博客将介绍第二种方式，基于Redis实现分布式锁。虽然网上已经有各种介绍Redis分布式锁实现的博客，然而他们的实现却有着各种各样的问题，为了避免误人子弟，本篇博客将详细介绍如何正确地实现Redis分布式锁。 可靠性 首先，为了确保分布式锁可用，我们至少要确保锁的实现同时满足">
-<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/9741289-23d5652f3a24bab0?imageMogr2/auto-orient/strip%7CimageView2/2/w/640">
+<meta name="twitter:title" content="蓄水池抽样">
+<meta name="twitter:description" content="蓄水池抽样问题是从动态变化的N个元素中随机抽选出M个元素(N&amp;gt;=M) 算法描述如下： 123456Init : a reservoir with the size： k        for    i= k+1 to N            M=random(1, i);            if( M &amp;lt; k)                 SWAP the Mth value">
 
 
 
@@ -121,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/04/02/Redis学习笔记——分布式锁的正确实现方式/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/05/21/蓄水池抽样/"/>
 
 
 
 
 
-  <title>Redis学习笔记——分布式锁的正确实现方式 | Duke Du的博客</title>
+  <title>蓄水池抽样 | Duke Du的博客</title>
   
 
 
@@ -268,7 +266,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/02/Redis学习笔记——分布式锁的正确实现方式/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/21/蓄水池抽样/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Duke Du">
@@ -285,7 +283,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Redis学习笔记——分布式锁的正确实现方式</h1>
+          <h1 class="post-title" itemprop="name headline">蓄水池抽样</h1>
         
 
         <div class="post-meta">
@@ -297,8 +295,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-02T09:56:28+08:00">
-                2018-04-02
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-21T14:42:16+08:00">
+                2018-05-21
               </time>
             
 
@@ -335,131 +333,28 @@
       
 
       
-        <p>分布式锁一般有三种实现方式：1. 数据库乐观锁；2. 基于Redis的分布式锁；3. 基于ZooKeeper的分布式锁。本篇博客将介绍第二种方式，基于Redis实现分布式锁。虽然网上已经有各种介绍Redis分布式锁实现的博客，然而他们的实现却有着各种各样的问题，为了避免误人子弟，本篇博客将详细介绍如何正确地实现Redis分布式锁。</p>
-<p>可靠性</p>
-<p>首先，为了确保分布式锁可用，我们至少要确保锁的实现同时满足以下四个条件：</p>
-<p>互斥性。在任意时刻，只有一个客户端能持有锁。</p>
-<p>不会发生死锁。即使有一个客户端在持有锁的期间崩溃而没有主动解锁，也能保证后续其他客户端能加锁。</p>
-<p>具有容错性。只要大部分的Redis节点正常运行，客户端就可以加锁和解锁。</p>
-<p>解铃还须系铃人。加锁和解锁必须是同一个客户端，客户端自己不能把别人加的锁给解了。</p>
-<p>代码实现</p>
-<p>组件依赖</p>
-<p>首先我们要通过Maven引入Jedis开源组件，在pom.xml文件加入下面的代码：</p>
-<p>redis.clients</p>
-<p>jedis</p>
-<p>2.9.0</p>
-<p>加锁代码</p>
-<p><strong>正确姿势</strong></p>
-<p>Talk is cheap, show me the code。先展示代码，再带大家慢慢解释为什么这样实现：</p>
-<p>public class RedisTool {</p>
-<p>private static final String LOCK_SUCCESS = “OK”;</p>
-<p>private static final String SET_IF_NOT_EXIST = “NX”;</p>
-<p>private static final String SET_WITH_EXPIRE_TIME = “PX”;</p>
-<p>/**</p>
-<p>* 尝试获取分布式锁</p>
-<p>* @param jedis Redis客户端</p>
-<p>* @param lockKey 锁</p>
-<p>* @param requestId 请求标识</p>
-<p>* @param expireTime 超期时间</p>
-<p>* @return 是否获取成功</p>
-<p>*/</p>
-<p>public static boolean tryGetDistributedLock(Jedis jedis, String lockKey, String requestId,int expireTime) {</p>
-<p>String result = jedis.set(lockKey, requestId, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, expireTime);</p>
-<p>if (LOCK_SUCCESS.equals(result)) {</p>
-<p>return true;</p>
-<p>}</p>
-<p>return false;</p>
-<p>}</p>
-<p>}</p>
-<p>可以看到，我们加锁就一行代码：jedis.set(String key, String value, String nxxx, String expx, int time)，这个set()方法一共有五个形参：</p>
-<p>第一个为key，我们使用key来当锁，因为key是唯一的。</p>
-<p>第二个为value，我们传的是requestId，很多童鞋可能不明白，有key作为锁不就够了吗，为什么还要用到value？原因就是我们在上面讲到可靠性时，分布式锁要满足第四个条件解铃还须系铃人，通过给value赋值为requestId，我们就知道这把锁是哪个请求加的了，在解锁的时候就可以有依据。requestId可以使用UUID.randomUUID().toString()方法生成。</p>
-<p>第三个为nxxx，这个参数我们填的是NX，意思是SET IF NOT EXIST，即当key不存在时，我们进行set操作；若key已经存在，则不做任何操作；</p>
-<p>第四个为expx，这个参数我们传的是PX，意思是我们要给这个key加一个过期的设置，具体时间由第五个参数决定。</p>
-<p>第五个为time，与第四个参数相呼应，代表key的过期时间。</p>
-<p>总的来说，执行上面的set()方法就只会导致两种结果：1. 当前没有锁（key不存在），那么就进行加锁操作，并对锁设置个有效期，同时value表示加锁的客户端。2. 已有锁存在，不做任何操作。</p>
-<p>心细的童鞋就会发现了，我们的加锁代码满足我们可靠性里描述的三个条件。首先，set()加入了NX参数，可以保证如果已有key存在，则函数不会调用成功，也就是只有一个客户端能持有锁，满足互斥性。其次，由于我们对锁设置了过期时间，即使锁的持有者后续发生崩溃而没有解锁，锁也会因为到了过期时间而自动解锁（即key被删除），不会发生死锁。最后，因为我们将value赋值为requestId，代表加锁的客户端请求标识，那么在客户端在解锁的时候就可以进行校验是否是同一个客户端。由于我们只考虑Redis单机部署的场景，所以容错性我们暂不考虑。</p>
-<p><strong>错误示例1</strong></p>
-<p>比较常见的错误示例就是使用jedis.setnx()和jedis.expire()组合实现加锁，代码如下：</p>
-<p>public static void wrongGetLock1(Jedis jedis, String lockKey, String requestId, intexpireTime) {</p>
-<p>Long result = jedis.setnx(lockKey, requestId);</p>
-<p>if (result == 1) {</p>
-<p>// 若在这里程序突然崩溃，则无法设置过期时间，将发生死锁</p>
-<p>jedis.expire(lockKey, expireTime);</p>
-<p>}</p>
-<p>}</p>
-<p>setnx()方法作用就是SET IF NOT EXIST，expire()方法就是给锁加一个过期时间。乍一看好像和前面的set()方法结果一样，然而由于这是两条Redis命令，不具有原子性，如果程序在执行完setnx()之后突然崩溃，导致锁没有设置过期时间。那么将会发生死锁。网上之所以有人这样实现，是因为低版本的jedis并不支持多参数的set()方法。</p>
-<p><strong>错误示例2</strong></p>
-<p>这一种错误示例就比较难以发现问题，而且实现也比较复杂。实现思路：使用jedis.setnx()命令实现加锁，其中key是锁，value是锁的过期时间。执行过程：1. 通过setnx()方法尝试加锁，如果当前锁不存在，返回加锁成功。2. 如果锁已经存在则获取锁的过期时间，和当前时间比较，如果锁已经过期，则设置新的过期时间，返回加锁成功。代码如下：</p>
-<p>public static boolean wrongGetLock2(Jedis jedis, String lockKey, int expireTime) {</p>
-<p>long expires = System.currentTimeMillis() + expireTime;</p>
-<p>String expiresStr = String.valueOf(expires);</p>
-<p>// 如果当前锁不存在，返回加锁成功</p>
-<p>if (jedis.setnx(lockKey, expiresStr) == 1) {</p>
-<p>return true;</p>
-<p>}</p>
-<p>// 如果锁存在，获取锁的过期时间</p>
-<p>String currentValueStr = jedis.get(lockKey);</p>
-<p>if (currentValueStr != null &amp;&amp; Long.parseLong(currentValueStr) &lt; System.currentTimeMillis()) {</p>
-<p>// 锁已过期，获取上一个锁的过期时间，并设置现在锁的过期时间</p>
-<p>String oldValueStr = jedis.getSet(lockKey, expiresStr);</p>
-<p>if (oldValueStr != null &amp;&amp; oldValueStr.equals(currentValueStr)) {</p>
-<p>// 考虑多线程并发的情况，只有一个线程的设置值和当前值相同，它才有权利加锁</p>
-<p>return true;</p>
-<p>}</p>
-<p>}</p>
-<p>// 其他情况，一律返回加锁失败</p>
-<p>return false;</p>
-<p>}</p>
-<p>那么这段代码问题在哪里？1. 由于是客户端自己生成过期时间，所以需要强制要求分布式下每个客户端的时间必须同步。 2. 当锁过期的时候，如果多个客户端同时执行jedis.getSet()方法，那么虽然最终只有一个客户端可以加锁，但是这个客户端的锁的过期时间可能被其他客户端覆盖。3. 锁不具备拥有者标识，即任何客户端都可以解锁。</p>
-<p>解锁代码</p>
-<p><strong>正确姿势</strong></p>
-<p>还是先展示代码，再带大家慢慢解释为什么这样实现：</p>
-<p>public class RedisTool {</p>
-<p>private static final Long RELEASE_SUCCESS = 1L;</p>
-<p>/**</p>
-<p>* 释放分布式锁</p>
-<p>* @param jedis Redis客户端</p>
-<p>* @param lockKey 锁</p>
-<p>* @param requestId 请求标识</p>
-<p>* @return 是否释放成功</p>
-<p>*/</p>
-<p>public static boolean releaseDistributedLock(Jedis jedis, String lockKey, String requestId) {</p>
-<p>String script = “if redis.call(‘get’, KEYS[1]) == ARGV[1] then return redis.call(‘del’, KEYS[1]) else return 0 end”;</p>
-<p>Object result = jedis.eval(script, Collections.singletonList(lockKey), Collections.singletonList(requestId));</p>
-<p>if (RELEASE_SUCCESS.equals(result)) {</p>
-<p>return true;</p>
-<p>}</p>
-<p>return false;</p>
-<p>}</p>
-<p>}</p>
-<p>可以看到，我们解锁只需要两行代码就搞定了！第一行代码，我们写了一个简单的Lua脚本代码，上一次见到这个编程语言还是在《黑客与画家》里，没想到这次居然用上了。第二行代码，我们将Lua代码传到jedis.eval()方法里，并使参数KEYS[1]赋值为lockKey，ARGV[1]赋值为requestId。eval()方法是将Lua代码交给Redis服务端执行。</p>
-<p>那么这段Lua代码的功能是什么呢？其实很简单，首先获取锁对应的value值，检查是否与requestId相等，如果相等则删除锁（解锁）。那么为什么要使用Lua语言来实现呢？因为要确保上述操作是原子性的。关于非原子性会带来什么问题，可以阅读【解锁代码-错误示例2】 。那么为什么执行eval()方法可以确保原子性，源于Redis的特性，下面是官网对eval命令的部分解释：</p>
-<p><img src="//upload-images.jianshu.io/upload_images/9741289-23d5652f3a24bab0?imageMogr2/auto-orient/strip%7CimageView2/2/w/640" alt="img"></p>
-<p>简单来说，就是在eval命令执行Lua代码的时候，Lua代码将被当成一个命令去执行，并且直到eval命令执行完成，Redis才会执行其他命令。</p>
-<p><strong>错误示例1</strong></p>
-<p>最常见的解锁代码就是直接使用jedis.del()方法删除锁，这种不先判断锁的拥有者而直接解锁的方式，会导致任何客户端都可以随时进行解锁，即使这把锁不是它的。</p>
-<p>public static void wrongReleaseLock1(Jedis jedis, String lockKey) {</p>
-<p>jedis.del(lockKey);</p>
-<p>}</p>
-<p><strong>错误示例2</strong></p>
-<p>这种解锁代码乍一看也是没问题，甚至我之前也差点这样实现，与正确姿势差不多，唯一区别的是分成两条命令去执行，代码如下：</p>
-<p>public static void wrongReleaseLock2(Jedis jedis, String lockKey, String requestId) {</p>
-<p>// 判断加锁与解锁是不是同一个客户端</p>
-<p>if (requestId.equals(jedis.get(lockKey))) {</p>
-<p>// 若在此时，这把锁突然不是这个客户端的，则会误解锁</p>
-<p>jedis.del(lockKey);</p>
-<p>}</p>
-<p>}</p>
-<p>如代码注释，问题在于如果调用jedis.del()方法的时候，这把锁已经不属于当前客户端的时候会解除他人加的锁。那么是否真的有这种场景？答案是肯定的，比如客户端A加锁，一段时间之后客户端A解锁，在执行jedis.del()之前，锁突然过期了，此时客户端B尝试加锁成功，然后客户端A再执行del()方法，则将客户端B的锁给解除了。</p>
-<p>总结</p>
-<p>本文主要介绍了如何使用Java代码正确实现Redis分布式锁，对于加锁和解锁也分别给出了两个比较经典的错误示例。其实想要通过Redis实现分布式锁并不难，只要保证能满足可靠性里的四个条件。互联网虽然给我们带来了方便，只要有问题就可以google，然而网上的答案一定是对的吗？其实不然，所以我们更应该时刻保持着质疑精神，多想多验证。</p>
-<p>如果你的项目中Redis是多机部署的，那么可以尝试使用Redisson实现分布式锁，这是Redis官方提供的Java组件，链接在参考阅读章节已经给出。</p>
-<p>参考阅读</p>
-<p>Distributed locks with Redis</p>
-<p>EVAL command</p>
-<p>Redisson</p>
-<p>原文 ：<a href="https://www.jianshu.com/p/6ae15854ed3b" target="_blank" rel="noopener">https://www.jianshu.com/p/6ae15854ed3b</a></p>
+        <p>蓄水池抽样问题是从动态变化的N个元素中随机抽选出M个元素(N&gt;=M)</p>
+<p>算法描述如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Init : a reservoir with the size： k</span><br><span class="line">        for    i= k+1 to N</span><br><span class="line">            M=random(1, i);</span><br><span class="line">            if( M &lt; k)</span><br><span class="line">                 SWAP the Mth value and ith value</span><br><span class="line">       end for</span><br></pre></td></tr></table></figure>
+<p>由于N的个数是不确定的，这就意味着不论N的个数是多少，里面元素都要被等概率抽取,例如，先从10个元素中抽取2个出来，现在又往里面添加了10个元素，变成了从20个元素中抽取两个出来，如何保证这次变化后每个元素被抽取的概率还是一样的呢？</p>
+<p>问题，证明对于任意样本号n,n&gt;=k,每个样本作为取出样本的概率相等，即k/n</p>
+<p> 证明：</p>
+<p> 当n=k时，由我们把前k个数放入蓄水池可知，每个样本的取出概率均相等，即k/k=1。   设当前样本号为n，其每个取出样本概率均相等，即为k/n，我们要证明的是这种情况对于n+1也成立。</p>
+<p>由于我们以k/(n+1)决定是否把n+1放入蓄水池，那么对于n+1其出现在蓄水池中的概率就是k/(n+1)，对于前n个元素中的任意元素m(k+1&lt;=m&lt;=n)，其出现在蓄水池中的概率为 m出现在蓄水池中的概率 <em> [(m+1被选中的概率</em>m没被m+1替换的概率 + m+1没被选中的概率)<em>(m+2被选中的概率</em>m没被m+2替换的概率 + m+2没被选中的概率)<em>…</em>(n+1被选中的概率*m没被n+1替换的概率 + n+1没被选中的概率)]</p>
+<p>可见，对于n+1每个样本取出概率也相等，即为k/(n+1)。证毕。</p>
+<p>面试题：</p>
+<p>给你一个长度为N的链表。N很大，但你不知道N有多大。你的任务是从这N个元素中随机取出k个元素。你只能遍历这个链表一次。你的算法必须保证取出的元素恰好有k个，且它们是完全随机的（出现概率均等）。</p>
+<p>此问题有个限制点：</p>
+<p>1.元素个数不可知</p>
+<p>2.只能遍历一边</p>
+<p>解题思路如下：</p>
+<p>1.遍历链表到第k个元素，构造一个数组A[K]存储这k个元素</p>
+<p>2.从k+1开始遍历，与前面算法一样</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">for    i= k+1 to N </span><br><span class="line">     M=random(1, i);</span><br><span class="line">     if( M &lt; k)</span><br><span class="line">          SWAP the Mth value and ith value in array A</span><br><span class="line">end for</span><br></pre></td></tr></table></figure>
+<p>3.最后得到的数组A[k]就是想要的。</p>
+<p>在网上流传的这个算法有问题，wiki 上面的描述如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">array R[k];    // result</span><br><span class="line">integer i, j;</span><br><span class="line">// fill the reservoir array</span><br><span class="line">for each i in 1 to k do</span><br><span class="line">    R[i] := S[i]</span><br><span class="line">done;</span><br><span class="line">// replace elements with gradually decreasing probability</span><br><span class="line">for each i in k+1 to length(S) do</span><br><span class="line">    j := random(1, i);   // important: inclusive range</span><br><span class="line">    if j &lt;= k then</span><br><span class="line">        R[j] := S[i]</span><br><span class="line">    fi</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+<p>（ps:注意第10行的 j &lt;= k）</p>
 
       
     </div>
@@ -484,8 +379,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/04/02/Redis学习笔记——redis的事务和watch/" rel="next" title="Redis学习笔记——redis的事务和watch">
-                <i class="fa fa-chevron-left"></i> Redis学习笔记——redis的事务和watch
+              <a href="/2018/05/21/Guava-Cache内存缓存使用实践-定时异步刷新及简单抽象封装/" rel="next" title="Guava Cache内存缓存使用实践-定时异步刷新及简单抽象封装">
+                <i class="fa fa-chevron-left"></i> Guava Cache内存缓存使用实践-定时异步刷新及简单抽象封装
               </a>
             
           </div>
@@ -493,10 +388,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/04/06/spring-session简介、使用及实现原理/" rel="prev" title="spring-session简介、使用及实现原理">
-                spring-session简介、使用及实现原理 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
