@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="所有的引用数据类型（类-类型）的类名、基本数据类型都可以通过.class方式获取其 Class对象（对于基本数据类型的封装类还可以通过.TYPE 的方式获取其 Class 对象，但要注意。TYPE 实际上获取的封装类对应的基本类型的 Class 对象的引用，那么你可以判断出int.class==Integer.TYPE 返回 true，int.class==Integer.class 返回 fa">
+<meta name="description" content="Removes all elements in the sorted set stored at key with rank between start and stop. Both start and stop are 0 -based indexes with 0 being the element with the lowest score. These indexes can be neg">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Class对象的获取">
-<meta property="og:url" content="http://yoursite.com/2018/05/04/Class对象的获取/index.html">
+<meta property="og:title" content="redis 删除元素位置的计算">
+<meta property="og:url" content="http://yoursite.com/2018/08/10/redis-删除元素位置的计算/index.html">
 <meta property="og:site_name" content="Duke Du的博客">
-<meta property="og:description" content="所有的引用数据类型（类-类型）的类名、基本数据类型都可以通过.class方式获取其 Class对象（对于基本数据类型的封装类还可以通过.TYPE 的方式获取其 Class 对象，但要注意。TYPE 实际上获取的封装类对应的基本类型的 Class 对象的引用，那么你可以判断出int.class==Integer.TYPE 返回 true，int.class==Integer.class 返回 fa">
+<meta property="og:description" content="Removes all elements in the sorted set stored at key with rank between start and stop. Both start and stop are 0 -based indexes with 0 being the element with the lowest score. These indexes can be neg">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-08T02:26:22.646Z">
+<meta property="og:updated_time" content="2018-08-10T02:13:48.898Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Class对象的获取">
-<meta name="twitter:description" content="所有的引用数据类型（类-类型）的类名、基本数据类型都可以通过.class方式获取其 Class对象（对于基本数据类型的封装类还可以通过.TYPE 的方式获取其 Class 对象，但要注意。TYPE 实际上获取的封装类对应的基本类型的 Class 对象的引用，那么你可以判断出int.class==Integer.TYPE 返回 true，int.class==Integer.class 返回 fa">
+<meta name="twitter:title" content="redis 删除元素位置的计算">
+<meta name="twitter:description" content="Removes all elements in the sorted set stored at key with rank between start and stop. Both start and stop are 0 -based indexes with 0 being the element with the lowest score. These indexes can be neg">
 
 
 
@@ -119,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/05/04/Class对象的获取/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/08/10/redis-删除元素位置的计算/"/>
 
 
 
 
 
-  <title>Class对象的获取 | Duke Du的博客</title>
+  <title>redis 删除元素位置的计算 | Duke Du的博客</title>
   
 
 
@@ -266,7 +266,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/05/04/Class对象的获取/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/10/redis-删除元素位置的计算/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Duke Du">
@@ -283,7 +283,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Class对象的获取</h1>
+          <h1 class="post-title" itemprop="name headline">redis 删除元素位置的计算</h1>
         
 
         <div class="post-meta">
@@ -295,8 +295,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-04T10:23:13+08:00">
-                2018-05-04
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-08-10T10:11:54+08:00">
+                2018-08-10
               </time>
             
 
@@ -333,11 +333,23 @@
       
 
       
-        <ul>
-<li>所有的引用数据类型（类-类型）的类名、基本数据类型都可以通过.class方式获取其 Class对象（对于基本数据类型的封装类还可以通过.TYPE 的方式获取其 Class 对象，但要注意。TYPE 实际上获取的封装类对应的基本类型的 Class 对象的引用，那么你可以判断出int.class==Integer.TYPE 返回 true，int.class==Integer.class 返回 false！），通过这种方式不会初始化静态域，使用.class、.TYPE 的方式获取 Class对象叫做类的字面常量；</li>
-<li>Class 的 forName(String  name)传入一个类的完整类路径也可以获得 Class 对象，但由于使用的是字符串，必须强制转换才可以获取泛型的Class<t>的 Class对象，并且你必须获取这个方法可能抛出的ClassNotFoundException异常。这种方法可以初始化静态域。</t></li>
-<li>还可通过类的对象实例下的getClass()方法来获取Class对象，即 实例名.getClass()</li>
-</ul>
+        <p>Removes all elements in the sorted set stored at <code>key</code> with rank between <code>start</code> and <code>stop</code>. Both <code>start</code> and <code>stop</code> are <code>0</code> -based indexes with <code>0</code> being the element with the lowest score. These indexes can be negative numbers, where they indicate offsets starting at the element with the highest score. For example: <code>-1</code> is the element with the highest score, <code>-2</code> the element with the second highest score and so forth.</p>
+<p>redis&gt; </p>
+<p>ZADD myzset 1 “one”</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(integer) 1</span><br></pre></td></tr></table></figure>
+<p>redis&gt; </p>
+<p>ZADD myzset 2 “two”</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(integer) 1</span><br></pre></td></tr></table></figure>
+<p>redis&gt; </p>
+<p>ZADD myzset 3 “three”</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(integer) 1</span><br></pre></td></tr></table></figure>
+<p>redis&gt; </p>
+<p>ZREMRANGEBYRANK myzset 0 1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(integer) 2</span><br></pre></td></tr></table></figure>
+<p>redis&gt; </p>
+<p>ZRANGE myzset 0 -1 WITHSCORES</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1) &quot;three&quot;</span><br><span class="line">2) &quot;3&quot;</span><br></pre></td></tr></table></figure>
+<p>如果删除的元素位置超出范围不会影响比如有3个数据 删除 （0， -5）则相当于没有执行</p>
 
       
     </div>
@@ -362,8 +374,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/04/28/Java里面CompletableFuture详解/" rel="next" title="Java里面CompletableFuture详解">
-                <i class="fa fa-chevron-left"></i> Java里面CompletableFuture详解
+              <a href="/2018/06/05/TPS及计算方法/" rel="next" title="TPS及计算方法">
+                <i class="fa fa-chevron-left"></i> TPS及计算方法
               </a>
             
           </div>
@@ -371,10 +383,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/05/21/Guava-Cache内存缓存使用实践-定时异步刷新及简单抽象封装/" rel="prev" title="Guava Cache内存缓存使用实践-定时异步刷新及简单抽象封装">
-                Guava Cache内存缓存使用实践-定时异步刷新及简单抽象封装 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
